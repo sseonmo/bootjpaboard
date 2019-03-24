@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<!-- Bootstrap CSS -->
+	<!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">-->
+	<link rel="stylesheet" href="webjars/bootstrap/4.3.1/css/bootstrap.min.css" >
+	<title>Hello, world!</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	<a class="navbar-brand" href="/index.html">BOOT_JPA_BOARD</a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		<span class="navbar-toggler-icon"></span>
+	</button>
+
+	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		<ul class="navbar-nav mr-auto">
+			<li class="nav-item">
+				<a class="nav-link" href="/form.html">회원가입</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+<div class="container">
+	</br>
+	<!-- Default panel contents -->
+	<div class="panel-heading">사용자 목록</div>
+	<!-- Table -->
+	<table class="table">
+		<thead class="thead-light">
+		<tr>
+			<th scope="col">사용자 아이디</th>
+			<th scope="col">이름</th>
+			<th scope="col">이메일</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tbody>
+			{{#users}}
+			<tr>
+				<td>{{userId}}</td>
+				<td>{{name}}</td>
+				<td>{{email}}</td>
+			</tr>
+			{{/users}}
+		</tbody>
+	</table>
+
+</div>
+<script src="webjars/jquery/3.3.1/dist/jquery.min.js"></script>
+<script src="webjars/popper.js/1.14.7/dist/umd/popper.min.js"></script>
+<script src="webjars/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
