@@ -18,4 +18,10 @@ public class WelcomeController {
 		model.addAttribute("age", age);
 		return "welcome";
 	}
+
+	@GetMapping("/index")
+	public String index() {
+		return "index";
+	}
+
 }
