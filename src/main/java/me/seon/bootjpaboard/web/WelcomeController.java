@@ -19,7 +19,7 @@ public class WelcomeController {
 		return "welcome";
 	}
 
-	@GetMapping("/index")
+	@GetMapping("")
 	public String index() {
 		return "index";
 	}

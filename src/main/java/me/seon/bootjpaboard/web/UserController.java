@@ -10,6 +10,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -17,14 +19,13 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
 	final Logger logger = LoggerFactory.getLogger(UserController.class);
 
-	private List<User> users = new ArrayList<>();
-
-	@Autowired
+	@Resource
 	private UserRepository repository;
 
-	@GetMapping("/login")
+	@GetMapping("/loginForm")
 	public String goLogin(User user) {
 		return "/user/login";
 	}
@@ -48,19 +49,20 @@ public class UserController {
 		return "/user/updateForm";
 	}
 
-	@PostMapping("login")
-	public String login(User user) {
-		final String[] returnUrl = new String[1];
-		returnUrl[0] = "login_failed";
+	@PostMapping("/login")
+	public String login(User user, HttpSession session, Model model) {
 
 		Optional<User> byUserId = repository.findByUserId(user.getUserId());
-		byUserId.ifPresent(u -> {
-					if (u.getPassword().equals(user.getPassword()) )
-						returnUrl[0] = "success";
-				}
-		);
+		if (byUserId.isPresent()) {
+			if (byUserId.get().getPassword().equals(user.getPassword())) {
+				session.setAttribute("user", byUserId.get());
+				return "redirect:/";
+			}
+		}
 
-		return returnUrl[0];
+		//실패
+		model.addAttribute("failure",true);
+		return  "/user/login";
 	}
 
 	@PostMapping("/create")
