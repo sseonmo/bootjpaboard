@@ -37,9 +37,18 @@ public class UserController {
 	}
 
 	@GetMapping("/{id}/form")
-	public String updateForm(@PathVariable Long id, Model model) throws Exception {
+	public String updateForm(@PathVariable Long id, Model model, HttpSession session) throws Exception {
 		logger.debug("updateForm : parameter : [{}]", id);
-		Optional<User> byId = repository.findById(id);
+
+		Object tempUser = session.getAttribute("sessionUser");
+		if(tempUser == null) return "redirect:/user/form";
+
+		User sessionUser = (User) tempUser;
+		if (!id.equals(sessionUser.getId())) {
+			throw new IllegalStateException("you can't update the anther user.");
+		}
+
+		Optional<User> byId = repository.findById(sessionUser.getId());
 		System.out.println(byId.get().toString());
 		model.addAttribute("user", byId.orElseThrow(Exception::new));
 		return "/user/updateForm";
@@ -51,7 +60,7 @@ public class UserController {
 		Optional<User> byUserId = repository.findByUserId(user.getUserId());
 		if (byUserId.isPresent()) {
 			if (byUserId.get().getPassword().equals(user.getPassword())) {
-				session.setAttribute("user", byUserId.get());
+				session.setAttribute("sessionUser", byUserId.get());
 				return "redirect:/";
 			}
 		}
@@ -63,7 +72,7 @@ public class UserController {
 
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
-		session.removeAttribute("user");
+		session.removeAttribute("sessionUser");
 		return "redirect:/";
 	}
 
@@ -75,9 +84,19 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable Long id, User user) {
-		logger.debug("update {} {}", id, user.toString());
-		repository.save(user);
+	public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
+		logger.debug("update {} {}", id, updatedUser.toString());
+		Object tempUser = session.getAttribute("sessionUser");
+
+		if(tempUser == null)	return "redirect:/user/loginForm";
+
+		User sessionUser = (User) tempUser;
+		if(!id.equals(sessionUser.getId()))
+			throw new IllegalStateException("you can't update the anther user.");
+
+		repository.save(updatedUser);
+
+		session.setAttribute("sessionUser", updatedUser);
 		return "redirect:/user/list";
 	}
 
