@@ -52,16 +52,35 @@
 		</div>
 		<div class="collapse navbar-collapse" id="navbar-collapse2">
 			<ul class="nav navbar-nav navbar-right">
-				<li class="active"><a href="/index">Posts</a></li>
+				<li id="post"><a href="/index">Posts</a></li>
 				{{^sessionUser}}
-				<li><a href="/user/loginForm" role="button">로그인</a></li>
-				<li><a href="/user/form" role="button">회원가입</a></li>
+				<li id="login"><a href="/user/loginForm" role="button">로그인</a></li>
+				<li id="user"><a href="/user/form" role="button">회원가입</a></li>
 				{{/sessionUser}}
 				{{#sessionUser}}
-				<li><a href="/user/logout" role="button">로그아웃</a></li>
-				<li><a href="/user/{{id}}/form" role="button">개인정보수정</a></li>
+				<li id="logout"><a href="/user/logout" role="button">로그아웃</a></li>
+				<li id="update"><a href="/user/{{id}}/form" role="button">개인정보수정</a></li>
 				{{/sessionUser}}
 			</ul>
 		</div>
 	</div>
 </div>
+<script src="/webjars/jquery/3.3.1/dist/jquery.min.js" ></script>
+
+<script>
+	$(function() {
+		// activeTab 셋팅
+		var activeTab = sessionStorage.getItem("activeTab");
+		//초기값
+		if(!activeTab) $("#post").attr("class", "active");
+
+		$("#"+activeTab).attr("class", "active");
+		sessionStorage.clear();
+	});
+
+	$("#navbar-collapse2 > ul > li").on("click", function () {
+		console.log($(this).attr("id"));
+		debugger;
+		sessionStorage.setItem("activeTab", $(this).attr("id"));
+	});
+</script>

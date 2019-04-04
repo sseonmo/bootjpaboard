@@ -50,12 +50,14 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.webjars/bootstrap -->
+<!--
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
 			<version>4.3.1</version>
 		</dependency>
 
+-->
 
 		<!-- https://mvnrepository.com/artifact/org.webjars.bower/jquery -->
 		<dependency>
@@ -65,11 +67,13 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.webjars.npm/popper.js -->
+<!--
 		<dependency>
 			<groupId>org.webjars.npm</groupId>
 			<artifactId>popper.js</artifactId>
 			<version>1.14.7</version>
 		</dependency>
+-->
 
 		<dependency>
 			<groupId>com.h2database</groupId>
