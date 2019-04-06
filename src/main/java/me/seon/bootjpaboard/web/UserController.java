@@ -2,6 +2,7 @@ package me.seon.bootjpaboard.web;
 
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
+import me.seon.bootjpaboard.util.HttpSessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,7 @@ import java.util.Optional;
 @RequestMapping("/user")
 public class UserController {
 
-	final Logger logger = LoggerFactory.getLogger(UserController.class);
+	private final Logger logger = LoggerFactory.getLogger(UserController.class);
 
 	@Resource
 	private UserRepository repository;
@@ -40,16 +41,14 @@ public class UserController {
 	public String updateForm(@PathVariable Long id, Model model, HttpSession session) throws Exception {
 		logger.debug("updateForm : parameter : [{}]", id);
 
-		Object tempUser = session.getAttribute("sessionUser");
-		if(tempUser == null) return "redirect:/user/form";
+		if(!HttpSessionUtil.isLoginUser(session)) return "redirect:/user/form";
+		User sessionUser = HttpSessionUtil.getUserFormSession(session);
 
-		User sessionUser = (User) tempUser;
-		if (!id.equals(sessionUser.getId())) {
+		if (!sessionUser.matchId(id)) {
 			throw new IllegalStateException("you can't update the anther user.");
 		}
 
 		Optional<User> byId = repository.findById(sessionUser.getId());
-		System.out.println(byId.get().toString());
 		model.addAttribute("user", byId.orElseThrow(Exception::new));
 		return "/user/updateForm";
 	}
@@ -59,8 +58,8 @@ public class UserController {
 
 		Optional<User> byUserId = repository.findByUserId(user.getUserId());
 		if (byUserId.isPresent()) {
-			if (byUserId.get().getPassword().equals(user.getPassword())) {
-				session.setAttribute("sessionUser", byUserId.get());
+			if(user.matchPassword(byUserId.get().getPassword())){
+				HttpSessionUtil.setSession(session, byUserId.get());
 				return "redirect:/";
 			}
 		}
@@ -72,7 +71,7 @@ public class UserController {
 
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
-		session.removeAttribute("sessionUser");
+		HttpSessionUtil.deleteSession(session);
 		return "redirect:/";
 	}
 
@@ -86,17 +85,15 @@ public class UserController {
 	@PutMapping("/{id}")
 	public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
 		logger.debug("update {} {}", id, updatedUser.toString());
-		Object tempUser = session.getAttribute("sessionUser");
 
-		if(tempUser == null)	return "redirect:/user/loginForm";
+		if(!HttpSessionUtil.isLoginUser(session))	return "redirect:/user/loginForm";
+		User sessionUser = HttpSessionUtil.getUserFormSession(session);
 
-		User sessionUser = (User) tempUser;
-		if(!id.equals(sessionUser.getId()))
+		if(!sessionUser.matchId(id))
 			throw new IllegalStateException("you can't update the anther user.");
 
 		repository.save(updatedUser);
-
-		session.setAttribute("sessionUser", updatedUser);
+		HttpSessionUtil.setSession(session, updatedUser);
 		return "redirect:/user/list";
 	}
 
