@@ -12,6 +12,7 @@
 	<artifactId>bootjpaboard</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>bootjpaboard</name>
+	<packaging>war</packaging>
 	<description>Demo project for Spring Boot</description>
 
 	<properties>
@@ -30,6 +31,12 @@
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
@@ -38,10 +45,6 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
-
-
-
-
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
