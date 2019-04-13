@@ -1,1 +1,1 @@
- insert into USER (USER_ID, NAME, EMAIL, PASSWORD ) values ('mo0562', '선모', 'mo3509@gmail.com', 'password');
+ insert into USER (USER_ID, NAME, EMAIL, PASSWORD ) values ('mo0562', '선모', 'mo3509@gmail.com', 'pass');

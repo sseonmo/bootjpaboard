@@ -37,7 +37,7 @@ public class QuestionController {
 			return "/user/loginForm";
 
 		User userFormSession = HttpSessionUtil.getUserFormSession(session);
-		repository.save(new Question(userFormSession.getUserId(),title, contents));
+		repository.save(new Question(userFormSession,title, contents));
 		return "redirect:/";
  	}
 

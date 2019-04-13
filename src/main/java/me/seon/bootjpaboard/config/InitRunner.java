@@ -19,7 +19,7 @@ public class InitRunner implements ApplicationRunner {
 		User user = new User();
 		user.setUserId("seonmo");
 		user.setEmail("seonmo@gmail.com");
-		user.setPassword("password");
+		user.setPassword("pass");
 		user.setName("선모");
 
 		repository.save(user);

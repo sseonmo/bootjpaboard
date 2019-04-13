@@ -23,7 +23,7 @@ public class User {
 	private String email;
 
 	public boolean matchId(Long newId) {
-		if( newId== null ) return false;
+		if( newId == null ) return false;
 		return newId.equals(id);
 	}
 
