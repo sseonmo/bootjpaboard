@@ -9,13 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/questions")
@@ -49,6 +47,29 @@ public class QuestionController {
 
 		model.addAttribute("question", question);
 		return "/qna/show";
+	}
+
+	@GetMapping("/{id}/form")
+	public String updateform(@PathVariable("id") Question question, Model model) {
+		model.addAttribute("question", question);
+		return "/qna/updateForm";
+	}
+
+	@PutMapping("/{id}")
+	public String update(@PathVariable("id") Long id,  String title, String contents){
+		logger.info("update update : [{}] / [{}] / [{}]", id, title, contents );
+		Optional<Question> byId = repository.findById(id);
+		byId.ifPresent( qu -> {
+			qu.update(title, contents);
+			repository.save(qu);
+		});
+		return String.format("redirect:/questions/%d", id);
+	}
+
+	@DeleteMapping("/{id}")
+	public String delete(@PathVariable("id") Long id) {
+		repository.deleteById(id);
+		return "redirect:/";
 	}
 
 
