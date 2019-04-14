@@ -63,10 +63,14 @@ public class UserController {
 				return "redirect:/";
 			}
 		}
-
 		//실패
 		model.addAttribute("failure",true);
 		return  "/user/login";
+	}
+
+	@GetMapping("/login/{id}")
+	public void login(@PathVariable("id") User user) {
+		logger.info("/login/{id}   [{}]", user);
 	}
 
 	@GetMapping("/logout")
