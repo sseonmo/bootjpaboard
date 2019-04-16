@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Entity
 @NoArgsConstructor
@@ -47,4 +48,9 @@ public class Question {
 		this.title = title;
 		this.contents = contents;
 	}
+
+	public Boolean isEqualsWriter(User loginUser) {
+		return this.writer.getId().equals(loginUser.getId());
+	}
+
 }

@@ -1,5 +1,7 @@
 package me.seon.bootjpaboard.config;
 
+import me.seon.bootjpaboard.domain.Question;
+import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -13,6 +15,9 @@ public class InitRunner implements ApplicationRunner {
 
 	@Resource
 	UserRepository repository;
+
+	@Resource
+	QuestionRepository questionRepository;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {

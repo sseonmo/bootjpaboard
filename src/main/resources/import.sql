@@ -1,1 +1,3 @@
- insert into USER (USER_ID, NAME, EMAIL, PASSWORD ) values ('mo0562', '선모', 'mo3509@gmail.com', 'pass');
+ insert into USER (ID, USER_ID, NAME, EMAIL, PASSWORD ) values (1, 'mo0562', '선모', 'mo3509@gmail.com', 'pass');
+
+insert into QUESTION(ID, WRITER_ID,  TITLE, CONTENTS, CREATE_DATE) VALUES(1, 1, 'TEST', 'TEST CONTENTS', CURRENT_TIMESTAMP() )

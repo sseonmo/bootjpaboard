@@ -50,25 +50,55 @@ public class QuestionController {
 	}
 
 	@GetMapping("/{id}/form")
-	public String updateform(@PathVariable("id") Question question, Model model) {
+	public String updateform(@PathVariable("id") Question question, Model model, HttpSession session) {
+
+		if(!HttpSessionUtil.isLoginUser(session))
+			return "/user/loginForm";
+
+		User userFormSession = HttpSessionUtil.getUserFormSession(session);
+
+		if(!question.isEqualsWriter(userFormSession))
+			return "/user/loginForm";
+
 		model.addAttribute("question", question);
 		return "/qna/updateForm";
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable("id") Long id,  String title, String contents){
-		logger.info("update update : [{}] / [{}] / [{}]", id, title, contents );
-		Optional<Question> byId = repository.findById(id);
-		byId.ifPresent( qu -> {
-			qu.update(title, contents);
-			repository.save(qu);
-		});
-		return String.format("redirect:/questions/%d", id);
+	public String update(@PathVariable("id") Question question,  String title, String contents, HttpSession session){
+		logger.info("update update : [{}] / [{}] / [{}]", question.toString(), title, contents );
+
+		if(!HttpSessionUtil.isLoginUser(session))
+			return "/user/loginForm";
+
+		User userFormSession = HttpSessionUtil.getUserFormSession(session);
+
+		if(!question.isEqualsWriter(userFormSession))
+			return "/user/loginForm";
+
+		question.update(title, contents);
+		repository.save(question);
+
+//		Optional<Question> byId = repository.findById(id);
+//		byId.ifPresent( qu -> {
+//			qu.update(title, contents);
+//		});
+		return String.format("redirect:/questions/%d", question.getId());
 	}
 
 	@DeleteMapping("/{id}")
-	public String delete(@PathVariable("id") Long id) {
-		repository.deleteById(id);
+	public String delete(@PathVariable("id") Question question, HttpSession session) {
+
+		if(!HttpSessionUtil.isLoginUser(session))
+			return "/user/loginForm";
+
+		User userFormSession = HttpSessionUtil.getUserFormSession(session);
+
+		if(!question.isEqualsWriter(userFormSession))
+			return "/user/loginForm";
+
+		repository.deleteById(question.getId());
+
 		return "redirect:/";
 	}
 
