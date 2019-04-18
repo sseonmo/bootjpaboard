@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -25,8 +27,13 @@ public class Question {
 //	@JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
 	private User writer;
 
+	@OneToMany(mappedBy = "question")
+	@OrderBy("id ASC")
+	private List<Answer> answers;
+
 	private String title;
 
+	@Lob
 	private String contents;
 
 	private LocalDateTime createDate;
@@ -37,8 +44,6 @@ public class Question {
 		this.contents = content;
 		this.createDate = LocalDateTime.now();
 	}
-
-
 
 	public String getFormattedCreateDate() {
 		return  contents != null ? createDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "";
@@ -53,4 +58,14 @@ public class Question {
 		return this.writer.getId().equals(loginUser.getId());
 	}
 
+	@Override
+	public String toString() {
+		return "Question{" +
+				"id=" + id +
+				", writer=" + writer +
+				", title='" + title + '\'' +
+				", contents='" + contents + '\'' +
+				", createDate=" + createDate +
+				'}';
+	}
 }

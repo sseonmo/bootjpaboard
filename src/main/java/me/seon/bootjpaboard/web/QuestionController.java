@@ -1,5 +1,7 @@
 package me.seon.bootjpaboard.web;
 
+import javafx.print.Collation;
+import me.seon.bootjpaboard.domain.Answer;
 import me.seon.bootjpaboard.domain.Question;
 import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.User;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -44,8 +48,11 @@ public class QuestionController {
  	@GetMapping("/{id}")
 	public String Show(@PathVariable("id") Question question, Model model) {
 		logger.info("question show : [{}]", question.toString());
-
 		model.addAttribute("question", question);
+//		List<Answer> list = question.getAnswerList();
+//		list.get(0);
+//		logger.info(list.toString());
+
 		return "/qna/show";
 	}
 
