@@ -27,10 +27,22 @@ public class QuestionController {
 	@Resource
 	private QuestionRepository repository;
 
+	private boolean hasPermission(HttpSession session, Question question) {
+		if (!HttpSessionUtil.isLoginUser(session))
+			throw new IllegalStateException("로그인이 필요합니다.");
+
+		User userFormSession = HttpSessionUtil.getUserFormSession(session);
+		if(!question.isEqualsWriter(userFormSession))
+			throw new IllegalStateException("자신의 글만 수정, 삭제 가능합니다.");
+
+		return true;
+	}
+
 	@GetMapping("/form")
 	public String form(HttpSession session) {
 		if (!HttpSessionUtil.isLoginUser(session))
-			return "/user/loginForm";
+			return "/user/login";
+
 		return "/qna/form";
 	}
 
@@ -38,7 +50,7 @@ public class QuestionController {
 	public String create(String title, String contents, HttpSession session) {
 		logger.debug("question create : [{}] [{}]", title, contents);
 		if (!HttpSessionUtil.isLoginUser(session))
-			return "/user/loginForm";
+			return "/user/login";
 
 		User userFormSession = HttpSessionUtil.getUserFormSession(session);
 		repository.save(new Question(userFormSession,title, contents));
@@ -49,64 +61,47 @@ public class QuestionController {
 	public String Show(@PathVariable("id") Question question, Model model) {
 		logger.info("question show : [{}]", question.toString());
 		model.addAttribute("question", question);
-//		List<Answer> list = question.getAnswerList();
-//		list.get(0);
-//		logger.info(list.toString());
 
 		return "/qna/show";
 	}
 
 	@GetMapping("/{id}/form")
 	public String updateform(@PathVariable("id") Question question, Model model, HttpSession session) {
-
-		if(!HttpSessionUtil.isLoginUser(session))
-			return "/user/loginForm";
-
-		User userFormSession = HttpSessionUtil.getUserFormSession(session);
-
-		if(!question.isEqualsWriter(userFormSession))
-			return "/user/loginForm";
-
-		model.addAttribute("question", question);
-		return "/qna/updateForm";
+		try {
+			hasPermission(session, question);
+			return "/qna/updateForm";
+		} catch (IllegalStateException e) {
+			model.addAttribute("errorMessage",e.getMessage());
+			return "/user/login";
+		}
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable("id") Question question,  String title, String contents, HttpSession session){
-		logger.info("update update : [{}] / [{}] / [{}]", question.toString(), title, contents );
+	public String update(@PathVariable("id") Question question,  String title, String contents, HttpSession session, Model model){
+		logger.info("update update : [{}] / [{}] / [{}]", question.toString(), title, contents  );
 
-		if(!HttpSessionUtil.isLoginUser(session))
-			return "/user/loginForm";
+		try {
+			hasPermission(session, question);
+			question.update(title, contents);
+			repository.save(question);
+			return String.format("redirect:/questions/%d", question.getId());
+		} catch (IllegalStateException e) {
+			model.addAttribute("errorMessage",e.getMessage());
+			return "/user/login";
+		}
 
-		User userFormSession = HttpSessionUtil.getUserFormSession(session);
-
-		if(!question.isEqualsWriter(userFormSession))
-			return "/user/loginForm";
-
-		question.update(title, contents);
-		repository.save(question);
-
-//		Optional<Question> byId = repository.findById(id);
-//		byId.ifPresent( qu -> {
-//			qu.update(title, contents);
-//		});
-		return String.format("redirect:/questions/%d", question.getId());
 	}
 
 	@DeleteMapping("/{id}")
-	public String delete(@PathVariable("id") Question question, HttpSession session) {
-
-		if(!HttpSessionUtil.isLoginUser(session))
-			return "/user/loginForm";
-
-		User userFormSession = HttpSessionUtil.getUserFormSession(session);
-
-		if(!question.isEqualsWriter(userFormSession))
-			return "/user/loginForm";
-
-		repository.deleteById(question.getId());
-
-		return "redirect:/";
+	public String delete(@PathVariable("id") Question question, HttpSession session, Model model) {
+		try {
+			hasPermission(session, question);
+			repository.deleteById(question.getId());
+			return "redirect:/";
+		} catch (IllegalStateException e) {
+			model.addAttribute("errorMessage",e.getMessage());
+			return "/user/login";
+		}
 	}
 
 
