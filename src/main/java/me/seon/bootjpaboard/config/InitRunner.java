@@ -29,5 +29,9 @@ public class InitRunner implements ApplicationRunner {
 
 		repository.save(user);
 
+		Question question = new Question(user, "testTitle", "testContent");
+		questionRepository.save(question);
+
+
 	}
 }
