@@ -1,5 +1,8 @@
 package me.seon.bootjpaboard.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,11 +32,15 @@ public class Answer {
 
 	@ManyToOne
 	@JoinColumn(name = "question_id")
+//	@JsonBackReference
+	@JsonIgnore
 	private Question question;
 
 	@Lob
 	private String contents;
 
+
+	@JsonFormat(shape = JsonFormat.Shape.STRING,  pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createDate;
 
 	public String getAnswerCreateDate() {

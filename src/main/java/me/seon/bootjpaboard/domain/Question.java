@@ -1,5 +1,6 @@
 package me.seon.bootjpaboard.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class Question {
 
 	@OneToMany(mappedBy = "question")
 	@OrderBy("id ASC")
+//	@JsonManagedReference
 	private List<Answer> answers;
 
 	private String title;

@@ -50,55 +50,55 @@
 				</article>
 
 				<div class="qna-comment">
-					<div class="qna-comment-slipp">
-						<p class="qna-comment-count"><strong>{{answers.size}}</strong>개의 의견</p>
-						<div class="qna-comment-slipp-articles">
-							{{#answers}}
-							<article class="article" id="answer-1406">
-								<div class="article-header">
-									<!--<div class="article-header-thumb">-->
-									<!--<img src="https://graph.facebook.com/v2.3/1324855987/picture"-->
-									<!--class="article-author-thumb" alt="">-->
-									<!--</div>-->
-									<div class="article-header-text">
-										<a href="/user/{{writer.id}}/form"
-										   class="article-author-name">{{writer.userId}}</a>
-										<a href="#answer-1434" class="article-header-time" title="퍼머링크">
-											{{answerCreateDate}}
-										</a>
-									</div>
+				<div class="qna-comment-slipp">
+					<p class="qna-comment-count"><strong>{{answers.size}}</strong>개의 의견</p>
+					<div class="qna-comment-slipp-articles">
+						{{#answers}}
+						<article class="article" id="answer-1406">
+							<div class="article-header">
+								<!--<div class="article-header-thumb">-->
+								<!--<img src="https://graph.facebook.com/v2.3/1324855987/picture"-->
+								<!--class="article-author-thumb" alt="">-->
+								<!--</div>-->
+								<div class="article-header-text">
+									<a href="/user/{{writer.id}}/form"
+									   class="article-author-name">{{writer.userId}}</a>
+									<a href="#answer-1434" class="article-header-time" title="퍼머링크">
+										{{answerCreateDate}}
+									</a>
 								</div>
-								<div class="article-doc comment-doc">
-									<p>{{contents}}</p>
-								</div>
-								<div class="article-util">
-									<ul class="article-util-list">
-										<li>
-											<a class="link-modify-article"
-											   href="/questions/413/answers/1405/form">수정</a>
-										</li>
-										<li>
-											<form class="form-delete" action="/questions/{{question.id}}/answers/{{id}}"
-											      method="POST">
-												<input type="hidden" name="_method" value="DELETE">
-												<button type="submit" class="delete-answer-button">삭제</button>
-											</form>
-										</li>
-									</ul>
-								</div>
-							</article>
-							{{/answers}}
-							<form class="submit-write" method="post" action="/questions/{{id}}/answer">
-								<div class="form-group" style="padding:14px;">
-                                    <textarea class="form-control" placeholder="Update your status"
-                                              name="contents"></textarea>
-								</div>
-								<button type="submit" class="btn btn-success pull-right">답변하기</button>
-								<div class="clearfix"/>
-							</form>
-						</div>
+							</div>
+							<div class="article-doc comment-doc">
+								<p>{{contents}}</p>
+							</div>
+							<div class="article-util">
+								<ul class="article-util-list">
+									<li>
+										<a class="link-modify-article"
+										   href="/questions/413/answers/1405/form">수정</a>
+									</li>
+									<li>
+										<form class="form-delete" action="/questions/{{question.id}}/answers/{{id}}"
+										      method="POST">
+											<input type="hidden" name="_method" value="DELETE">
+											<button type="submit" class="delete-answer-button">삭제</button>
+										</form>
+									</li>
+								</ul>
+							</div>
+						</article>
+						{{/answers}}
+						<form class="ans-write" method="post" action="/api/questions/{{id}}/answer">
+							<div class="form-group" style="padding:14px;">
+								<textarea class="form-control" placeholder="Update your status" name="contents"></textarea>
+							</div>
+							<button type="submit" class="btn btn-success pull-right">답변하기</button>
+
+							<div class="clearfix"/>
+						</form>
 					</div>
 				</div>
+			</div>
 			</div>
 		</div>
 	</div>
@@ -108,9 +108,9 @@
 <script type="text/template" id="answerTemplate">
 	<article class="article">
 		<div class="article-header">
-			<div class="article-header-thumb">
-				<img src="https://graph.facebook.com/v2.3/1324855987/picture" class="article-author-thumb" alt="">
-			</div>
+			<!--<div class="article-header-thumb">-->
+				<!--<img src="https://graph.facebook.com/v2.3/1324855987/picture" class="article-author-thumb" alt="">-->
+			<!--</div>-->
 			<div class="article-header-text">
 				<a href="#" class="article-author-name">{0}</a>
 				<div class="article-header-time">{1}</div>
@@ -141,6 +141,33 @@
 	$(".form-delete").on("submit", function () {
 		if (!confirm("삭제하시겠습니까?")) return false;
 	});
+
+	$(".ans-write button").on("click", function (e) {
+
+		e.preventDefault();
+		var queryString = $(".ans-write").serialize();
+		var url = $(".ans-write").attr("action");
+
+		console.log(queryString, url);
+
+		$.ajax({
+			type : 'post',
+			url : url,
+			data : queryString,
+			dataType : 'json',
+			error: function () {
+
+			},
+			success: function () {
+
+			}
+
+		});
+
+	});
+
+
+
 </script>
 </body>
 </html>
