@@ -14,8 +14,8 @@ public class HttpSessionUtil {
 	}
 
 	public static User getUserFormSession(HttpSession session) {
-		if(!isLoginUser(session))	return null;
-		return (User)session.getAttribute(USER_SEESION_KEY);
+		if (!isLoginUser(session)) return null;
+		return (User) session.getAttribute(USER_SEESION_KEY);
 	}
 
 	public static void setSession(HttpSession session, User user) {

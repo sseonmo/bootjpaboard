@@ -76,8 +76,10 @@ public class QuestionController {
 	public String updateform(@PathVariable("id") Question question, Model model, HttpSession session) {
 		Result result = vaild(session, question);
 
-		if (result.isVaild())
+		if (result.isVaild()) {
+			model.addAttribute("question", question);
 			return "/qna/updateForm";
+		}
 
 		model.addAttribute("errorMessage",result.getErrorMessage());
 		return "/user/login";
