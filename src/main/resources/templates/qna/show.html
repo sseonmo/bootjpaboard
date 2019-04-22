@@ -155,16 +155,28 @@
 			url : url,
 			data : queryString,
 			dataType : 'json',
-			error: function () {
+			error: function (request, status, error) {
+				console.error(request, status, error);
 
 			},
-			success: function () {
+			success: function (data) {
+				console.log(data);
+				var templateRs = $("#answerTemplate").html().format(data.writer.userId, data.createDate, data.contents,data.id, data.id);
+				$(".qna-comment-slipp-articles").prepend(templateRs);
+
+				//textarea init
+				$("[name=contents]").val("");
+
+				// 댓글 count
+				var countObj = $(".qna-comment-count > strong");
+				countObj.text(Number(countObj.text()) + 1);
 
 			}
 
 		});
 
 	});
+
 
 
 

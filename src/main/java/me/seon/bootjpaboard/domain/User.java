@@ -1,5 +1,6 @@
 package me.seon.bootjpaboard.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,6 +19,7 @@ public class User {
 	@Column(nullable = false, length = 20, unique = true)
 	private String userId;
 
+	@JsonIgnore
 	private String password;
 
 	private String name;

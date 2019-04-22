@@ -32,9 +32,7 @@ public class ApiAnswerController {
 
 		User user = HttpSessionUtil.getUserFormSession(session);
 		Answer answer = new Answer(user, question, contents);
-		Answer save = resoritory.save(answer);
-
-		return save;
+		return resoritory.save(answer);
 
 	}
 
