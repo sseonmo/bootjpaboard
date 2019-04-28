@@ -18,9 +18,16 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter @Getter
+//@SequenceGenerator(
+//		name="QUESTION_SEQ_GEN", //시퀀스 제너레이터 이름
+//		sequenceName="QUESTION_SEQ", //시퀀스 이름
+//		initialValue=1, //시작값
+//		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
+//)
 public class Question {
 
 	@Id @GeneratedValue
+//	@Id @GeneratedValue(generator = "QUESTION_SEQ_GEN")
 	private Long id;
 
 	@ManyToOne
@@ -30,7 +37,7 @@ public class Question {
 
 	@OneToMany(mappedBy = "question")
 	@OrderBy("id DESC")
-//	@JsonManagedReference
+////	@JsonManagedReference
 	private List<Answer> answers;
 
 	private String title;

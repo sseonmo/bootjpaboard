@@ -20,10 +20,17 @@ import java.util.Objects;
 @ToString
 @Setter @Getter
 @NoArgsConstructor
+//@SequenceGenerator(
+//		name="ANSWER_SEQ_GEN", //시퀀스 제너레이터 이름
+//		sequenceName="ANSWER_SEQ", //시퀀스 이름
+//		initialValue=1, //시작값
+//		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
+//)
 public class Answer {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue()
+//	@GeneratedValue(generator = "ANSWER_SEQ_GEN")
 	private Long id;
 
 	@ManyToOne
@@ -70,5 +77,9 @@ public class Answer {
 	public int hashCode() {
 
 		return Objects.hash(id, writer, contents, createDate);
+	}
+
+	public Boolean isEqualsWriter(User loginUser) {
+		return this.getWriter().getId().equals(loginUser.getId());
 	}
 }

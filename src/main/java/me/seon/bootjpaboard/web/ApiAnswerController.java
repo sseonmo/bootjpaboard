@@ -1,16 +1,10 @@
 package me.seon.bootjpaboard.web;
 
-import me.seon.bootjpaboard.domain.Answer;
-import me.seon.bootjpaboard.domain.AnswerResoritory;
-import me.seon.bootjpaboard.domain.Question;
-import me.seon.bootjpaboard.domain.User;
+import me.seon.bootjpaboard.domain.*;
 import me.seon.bootjpaboard.util.HttpSessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -33,6 +27,22 @@ public class ApiAnswerController {
 		User user = HttpSessionUtil.getUserFormSession(session);
 		Answer answer = new Answer(user, question, contents);
 		return resoritory.save(answer);
+
+	}
+
+	@DeleteMapping("/{id}")
+	public Result delete(@PathVariable("id") Answer answer, HttpSession session) {
+		logger.info("delete answer : [{}]", answer);
+
+		if(!HttpSessionUtil.isLoginUser(session)) return Result.fail("로그인해야 합니다.");
+
+		User loginUser = HttpSessionUtil.getUserFormSession(session);
+
+		if(!answer.isEqualsWriter(loginUser))
+				return Result.fail("자신의 글만 삭제할 수 있습니다.");
+
+		resoritory.delete(answer);
+		return Result.ok();
 
 	}
 
