@@ -4,13 +4,15 @@ import me.seon.bootjpaboard.domain.Question;
 import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
+import org.apache.tomcat.jni.Local;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 
-@Component
+//@Component
 public class InitRunner implements ApplicationRunner {
 
 	@Resource
@@ -26,12 +28,12 @@ public class InitRunner implements ApplicationRunner {
 		user.setEmail("seonmo@gmail.com");
 		user.setPassword("pass");
 		user.setName("선모");
+		user.setCreateDate(LocalDateTime.now());
 
 		repository.save(user);
 
 		Question question = new Question(user, "testTitle", "testContent");
 		questionRepository.save(question);
-
 
 	}
 }

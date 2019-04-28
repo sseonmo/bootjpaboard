@@ -17,13 +17,13 @@ import java.util.List;
 //		initialValue=1, //시작값
 //		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
 //)
-public class User {
+public class User extends AbstractEntity{
 
-	@Id
+	/*@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 //	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "USER_SEQ_GEN")
 	private Long id;
-
+*/
 	@Column(nullable = false, length = 20, unique = true)
 	private String userId;
 
@@ -39,7 +39,7 @@ public class User {
 
 	public boolean matchId(Long newId) {
 		if( newId == null ) return false;
-		return newId.equals(id);
+		return newId.equals(super.getId());
 	}
 
 	public boolean matchPassword(String newPassword) {

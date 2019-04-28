@@ -24,11 +24,11 @@ import java.util.Objects;
 //		initialValue=1, //시작값
 //		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
 //)
-public class Question {
+public class Question extends AbstractEntity{
 
-	@Id @GeneratedValue
-//	@Id @GeneratedValue(generator = "QUESTION_SEQ_GEN")
-	private Long id;
+//	@Id @GeneratedValue
+////	@Id @GeneratedValue(generator = "QUESTION_SEQ_GEN")
+//	private Long id;
 
 	@ManyToOne
 	@JoinColumn(name = "writer_id")
@@ -37,7 +37,7 @@ public class Question {
 
 	@OneToMany(mappedBy = "question")
 	@OrderBy("id DESC")
-////	@JsonManagedReference
+//	@JsonManagedReference
 	private List<Answer> answers;
 
 	private String title;
@@ -45,18 +45,18 @@ public class Question {
 	@Lob
 	private String contents;
 
-	private LocalDateTime createDate;
+//	private LocalDateTime createDate;
 
 	public Question(User writer, String title, String content) {
 		this.writer = writer;
 		this.title = title;
 		this.contents = content;
-		this.createDate = LocalDateTime.now();
+//		this.createDate = LocalDateTime.now();
 	}
 
-	public String getFormattedCreateDate() {
-		return  contents != null ? createDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "";
-	}
+//	public String getFormattedCreateDate() {
+//		return  contents != null ? createDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "";
+//	}
 
 	public void update(String title, String contents) {
 		this.title = title;
@@ -67,14 +67,4 @@ public class Question {
 		return this.writer.getId().equals(loginUser.getId());
 	}
 
-	@Override
-	public String toString() {
-		return "Question{" +
-				"id=" + id +
-				", writer=" + writer +
-				", title='" + title + '\'' +
-				", contents='" + contents + '\'' +
-				", createDate=" + createDate +
-				'}';
-	}
 }
