@@ -154,7 +154,7 @@
 			},
 			success: function (data) {
 
-				var templateRs = $("#answerTemplate").html().format(data.writer.userId, data.createDate, data.contents, data.id, data.id);
+				var templateRs = $("#answerTemplate").html().format(data.writer.userId, data.createDate, data.contents, data.question.id, data.id);
 
 				$(".qna-comment-slipp-articles").prepend(templateRs);
 

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
-//@Component
+@Component
 public class InitRunner implements ApplicationRunner {
 
 	@Resource
@@ -23,12 +23,17 @@ public class InitRunner implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		User user = new User();
-		user.setUserId("seonmo");
-		user.setEmail("seonmo@gmail.com");
-		user.setPassword("pass");
-		user.setName("선모");
-		user.setCreateDate(LocalDateTime.now());
+		User user = User.builder().userId("seonmo")
+				.password("pass")
+				.name("선모")
+				.email("seonmo@gmila.com")
+				.build();
+//		User user = new User();
+//		user.setUserId("seonmo");
+//		user.setEmail("seonmo@gmail.com");
+//		user.setPassword("pass");
+//		user.setName("선모");
+//		user.setCreateDate(LocalDateTime.now());
 
 		repository.save(user);
 

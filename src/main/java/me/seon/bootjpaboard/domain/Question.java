@@ -1,10 +1,9 @@
 package me.seon.bootjpaboard.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.*;
 import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
@@ -14,10 +13,18 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
-@Setter @Getter
+@Getter
+//재귀오류 해결
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+// jpa에서는 프록시 생성을 위해서 기본 생정자를 반드시 하나를 생성해야한다.
+// 이때 접근권한이 protected 이면 충분하다.. 굳이 외부에 열어둘 필요가 없다.
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(exclude = {"answers"} )
+//@NoArgsConstructor
+//@AllArgsConstructor
+//@Setter @Getter
 //@SequenceGenerator(
 //		name="QUESTION_SEQ_GEN", //시퀀스 제너레이터 이름
 //		sequenceName="QUESTION_SEQ", //시퀀스 이름
@@ -47,6 +54,7 @@ public class Question extends AbstractEntity{
 
 //	private LocalDateTime createDate;
 
+	@Builder
 	public Question(User writer, String title, String content) {
 		this.writer = writer;
 		this.title = title;

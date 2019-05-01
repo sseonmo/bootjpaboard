@@ -1,25 +1,21 @@
 package me.seon.bootjpaboard.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import me.seon.bootjpaboard.config.LocalDateTimeConverter;
-import org.apache.tomcat.jni.Local;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 
 @Entity
-@ToString
-@Setter @Getter
-@NoArgsConstructor
+@Getter
+@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 //@SequenceGenerator(
 //		name="ANSWER_SEQ_GEN", //시퀀스 제너레이터 이름
 //		sequenceName="ANSWER_SEQ", //시퀀스 이름
@@ -40,7 +36,6 @@ public class Answer extends AbstractEntity {
 	@ManyToOne
 	@JoinColumn(name = "question_id")
 //	@JsonBackReference
-	@JsonIgnore
 	private Question question;
 
 	@Lob
@@ -54,6 +49,7 @@ public class Answer extends AbstractEntity {
 		return this.createDate == null ? "" : this.createDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 	}*/
 
+	@Builder
 	public Answer(User writer, Question question, String contents) {
 		this.writer = writer;
 		this.question = question;

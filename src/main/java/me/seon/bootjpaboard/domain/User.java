@@ -1,16 +1,15 @@
 package me.seon.bootjpaboard.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Setter @Getter @ToString
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 //@SequenceGenerator(
 //		name="USER_SEQ_GEN", //시퀀스 제너레이터 이름
 //		sequenceName="USER_SEQ", //시퀀스 이름
@@ -36,6 +35,14 @@ public class User extends AbstractEntity{
 
 //	@OneToMany(mappedBy = "writer")
 //	private List<Question> questionList = new ArrayList<>();
+
+	@Builder
+	public User(String userId, String password, String name, String email) {
+		this.userId = userId;
+		this.password = password;
+		this.name = name;
+		this.email = email;
+	}
 
 	public boolean matchId(Long newId) {
 		if( newId == null ) return false;

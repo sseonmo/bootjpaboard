@@ -25,7 +25,13 @@ public class ApiAnswerController {
 		if(!HttpSessionUtil.isLoginUser(session)) return null;
 
 		User user = HttpSessionUtil.getUserFormSession(session);
-		Answer answer = new Answer(user, question, contents);
+//		Answer answer = new Answer(user, question, contents);
+		Answer answer = Answer.builder()
+								.writer(user)
+								.question(question)
+								.contents(contents)
+								.build();
+
 		return resoritory.save(answer);
 
 	}
