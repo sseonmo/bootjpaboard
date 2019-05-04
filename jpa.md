@@ -6,7 +6,7 @@ https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-01
                             Date Type지원, LocalDateTime Type은 지원안됨.
     3. 외부에서 접근자로 객체를 생성할수 없게 하기
        @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    4. @build 을 이용한 유연한 객체 생성 - 순서상관없이 생성됨.
+    4. @Builder 을 이용한 유연한 객체 생성 - 순서상관없이 생성됨.
     5. DTO를 이용한 Request, Response 명확하게하기
     6. @Setter 사용안하기 - 명확함.
         // setter 이용 방법
@@ -30,4 +30,4 @@ https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-01
           this.zip = dto.getZip();
         } 
         
-*** 객체 자신을 변경하는것은 객체 자신이 되야한다.
+**객체 자신을 변경하는것은 객체 자신이 되야한다.**
