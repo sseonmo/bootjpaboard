@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -11,6 +13,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 
 @MappedSuperclass
@@ -18,10 +21,6 @@ import java.util.Objects;
 @Getter
 class AbstractEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@JsonProperty
-	private Long id;
 
 	@CreatedDate
 //	@CreationTimestamp
@@ -29,11 +28,19 @@ class AbstractEntity {
 	@JsonFormat(shape = JsonFormat.Shape.STRING,  pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createDate;
 
+
 	@LastModifiedDate
 //	@UpdateTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING,  pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime modifyDate;
 
+	@CreationTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date createAt;
+
+	@UpdateTimestamp
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updateAt;
 
 	public String getFormattedCreateDate() {
 		return dateFormatter(this.createDate, "yyyy-MM-dd HH:mm:ss");
@@ -53,31 +60,6 @@ class AbstractEntity {
 	}
 
 
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		AbstractEntity that = (AbstractEntity) o;
-		return Objects.equals(id, that.id) &&
-				Objects.equals(createDate, that.createDate) &&
-				Objects.equals(modifyDate, that.modifyDate);
-	}
-
-	@Override
-	public int hashCode() {
-
-		return Objects.hash(id, createDate, modifyDate);
-	}
-
-	@Override
-	public String toString() {
-		return "AbstractEntity{" +
-				"id=" + id +
-				", createDate=" + createDate +
-				", modifyDate=" + modifyDate +
-				'}';
-	}
 }
 
 

@@ -10,6 +10,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString
 //@SequenceGenerator(
 //		name="USER_SEQ_GEN", //시퀀스 제너레이터 이름
 //		sequenceName="USER_SEQ", //시퀀스 이름
@@ -18,11 +19,11 @@ import java.util.List;
 //)
 public class User extends AbstractEntity{
 
-	/*@Id
+	@Id
+//	@GeneratedValue
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	@GeneratedValue(strategy = GenerationType.IDENTITY, generator = "USER_SEQ_GEN")
 	private Long id;
-*/
+
 	@Column(nullable = false, length = 20, unique = true)
 	private String userId;
 
@@ -36,8 +37,16 @@ public class User extends AbstractEntity{
 //	@OneToMany(mappedBy = "writer")
 //	private List<Question> questionList = new ArrayList<>();
 
+	public void updateAccout(User user) {
+		this.userId = user.getUserId();
+		this.password = user.getPassword();
+		this.name = user.getName();
+		this.email = user.getEmail();
+
+	}
+
 	@Builder
-	public User(String userId, String password, String name, String email) {
+	public User( String userId, String password, String name, String email) {
 		this.userId = userId;
 		this.password = password;
 		this.name = name;
@@ -46,7 +55,7 @@ public class User extends AbstractEntity{
 
 	public boolean matchId(Long newId) {
 		if( newId == null ) return false;
-		return newId.equals(super.getId());
+		return newId.equals(this.getId());
 	}
 
 	public boolean matchPassword(String newPassword) {

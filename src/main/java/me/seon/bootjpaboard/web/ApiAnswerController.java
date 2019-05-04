@@ -1,5 +1,6 @@
 package me.seon.bootjpaboard.web;
 
+import lombok.RequiredArgsConstructor;
 import me.seon.bootjpaboard.domain.*;
 import me.seon.bootjpaboard.util.HttpSessionUtil;
 import org.slf4j.Logger;
@@ -8,15 +9,17 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 
 @RestController
 @RequestMapping("/api/questions/{question}/answer")
+@RequiredArgsConstructor
+@Transactional
 public class ApiAnswerController {
 
 	static final Logger logger = LoggerFactory.getLogger(ApiAnswerController.class);
 
-	@Resource
-	private AnswerResoritory resoritory;
+	private final AnswerResoritory resoritory;
 
 	@PostMapping("")
 	public Answer create(@PathVariable("question") Question question, String contents, HttpSession session) {

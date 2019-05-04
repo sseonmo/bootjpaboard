@@ -22,20 +22,11 @@ import java.util.Objects;
 // 이때 접근권한이 protected 이면 충분하다.. 굳이 외부에 열어둘 필요가 없다.
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(exclude = {"answers"} )
-//@NoArgsConstructor
-//@AllArgsConstructor
-//@Setter @Getter
-//@SequenceGenerator(
-//		name="QUESTION_SEQ_GEN", //시퀀스 제너레이터 이름
-//		sequenceName="QUESTION_SEQ", //시퀀스 이름
-//		initialValue=1, //시작값
-//		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
-//)
 public class Question extends AbstractEntity{
 
-//	@Id @GeneratedValue
-////	@Id @GeneratedValue(generator = "QUESTION_SEQ_GEN")
-//	private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@ManyToOne
 	@JoinColumn(name = "writer_id")
@@ -44,7 +35,6 @@ public class Question extends AbstractEntity{
 
 	@OneToMany(mappedBy = "question")
 	@OrderBy("id DESC")
-//	@JsonManagedReference
 	private List<Answer> answers;
 
 	private String title;
@@ -59,7 +49,6 @@ public class Question extends AbstractEntity{
 		this.writer = writer;
 		this.title = title;
 		this.contents = content;
-//		this.createDate = LocalDateTime.now();
 	}
 
 //	public String getFormattedCreateDate() {

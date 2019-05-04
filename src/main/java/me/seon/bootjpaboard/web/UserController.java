@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
+@Transactional
 public class UserController {
 
 	private final Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -87,7 +89,7 @@ public class UserController {
 	}
 
 	@PutMapping("/{id}")
-	public String update(@PathVariable Long id, User updatedUser, HttpSession session) {
+	public String update(@PathVariable final Long id, final User updatedUser, HttpSession session) {
 		logger.debug("update {} {}", id, updatedUser.toString());
 
 		if(!HttpSessionUtil.isLoginUser(session))	return "redirect:/user/loginForm";
@@ -96,8 +98,13 @@ public class UserController {
 		if(!sessionUser.matchId(id))
 			throw new IllegalStateException("you can't update the anther user.");
 
-		repository.save(updatedUser);
-		HttpSessionUtil.setSession(session, updatedUser);
+		User user = repository.findById(id).orElse(null);
+
+		if(user == null ) return "redirect:/user/loginForm";
+
+		user.updateAccout(updatedUser);
+//		repository.save(user);
+		HttpSessionUtil.setSession(session, user);
 		return "redirect:/user/list";
 	}
 

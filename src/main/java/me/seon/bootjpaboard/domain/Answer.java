@@ -7,10 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
@@ -24,10 +22,9 @@ import javax.persistence.ManyToOne;
 //)
 public class Answer extends AbstractEntity {
 
-//	@Id
-//	@GeneratedValue()
-////	@GeneratedValue(generator = "ANSWER_SEQ_GEN")
-//	private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@ManyToOne
 	@JoinColumn(name = "writer_id")
@@ -39,6 +36,7 @@ public class Answer extends AbstractEntity {
 	private Question question;
 
 	@Lob
+	@NotNull
 	private String contents;
 
 /*

@@ -1,5 +1,6 @@
 package me.seon.bootjpaboard.web;
 
+import lombok.RequiredArgsConstructor;
 import me.seon.bootjpaboard.domain.Question;
 import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.Result;
@@ -13,14 +14,16 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 
 @Controller
+@Transactional
 @RequestMapping("/questions")
+@RequiredArgsConstructor
 public class QuestionController {
 	final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
-	@Resource
-	private QuestionRepository repository;
+	private final QuestionRepository repository;
 
 	private boolean hasPermission(HttpSession session, Question question) {
 		if (!HttpSessionUtil.isLoginUser(session))
@@ -93,23 +96,12 @@ public class QuestionController {
 
 		if (result.isVaild()) {
 			question.update(title, contents);
-			repository.save(question);
 			return String.format("redirect:/questions/%d", question.getId());
 		}
 
 		model.addAttribute("errorMessage",result.getErrorMessage());
 		return "/user/login";
 
-		/*
-		try {
-			hasPermission(session, question);
-			question.update(title, contents);
-			repository.save(question);
-			return String.format("redirect:/questions/%d", question.getId());
-		} catch (IllegalStateException e) {
-			model.addAttribute("errorMessage",e.getMessage());
-			return "/user/login";
-		}*/
 	}
 
 	@DeleteMapping("/{id}")
