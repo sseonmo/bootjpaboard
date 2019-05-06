@@ -4,34 +4,34 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-//@SequenceGenerator(
-//		name="USER_SEQ_GEN", //시퀀스 제너레이터 이름
-//		sequenceName="USER_SEQ", //시퀀스 이름
-//		initialValue=1, //시작값
-//		allocationSize=1 //메모리를 통해 할당할 범위 사이즈
-//)
 public class User extends AbstractEntity{
 
 	@Id
-//	@GeneratedValue
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@Column(nullable = false, length = 20, unique = true)
 	private String userId;
 
+
 	@JsonIgnore
+	@NotEmpty
+	@Column(nullable = false)
 	private String password;
 
+	@NotEmpty
+	@Column(nullable = false)
 	private String name;
 
+	@Email
+	@Column(nullable = false, unique = true)
 	private String email;
 
 //	@OneToMany(mappedBy = "writer")

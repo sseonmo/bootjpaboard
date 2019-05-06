@@ -7,37 +7,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/questions/{question}/answer")
 @RequiredArgsConstructor
-@Transactional
 public class ApiAnswerController {
 
 	static final Logger logger = LoggerFactory.getLogger(ApiAnswerController.class);
 
 	private final AnswerResoritory resoritory;
 
+	private final AnswerService service;
+
 	@PostMapping("")
-	public Answer create(@PathVariable("question") Question question, String contents, HttpSession session) {
-		logger.info("create question : [{}] / contents : [{}]", question, contents);
+	public AnswerDto.Res create(@PathVariable("question") Long questionId, @RequestBody @Valid final AnswerDto.CreateReq createReq, HttpSession session) {
+		logger.info("create question : [{}] / contents : [{}]", questionId, createReq);
 
 		if(!HttpSessionUtil.isLoginUser(session)) return null;
 
-		User user = HttpSessionUtil.getUserFormSession(session);
-//		Answer answer = new Answer(user, question, contents);
-		Answer answer = Answer.builder()
-								.writer(user)
-								.question(question)
-								.contents(contents)
-								.build();
-
-		return resoritory.save(answer);
+		return new AnswerDto.Res(service.create(questionId, createReq, session));
 
 	}
+
 
 	@DeleteMapping("/{id}")
 	public Result delete(@PathVariable("id") Answer answer, HttpSession session) {
@@ -50,9 +43,7 @@ public class ApiAnswerController {
 		if(!answer.isEqualsWriter(loginUser))
 				return Result.fail("자신의 글만 삭제할 수 있습니다.");
 
-		resoritory.delete(answer);
-		return Result.ok();
-
+		return service.delete(answer);
 	}
 
 

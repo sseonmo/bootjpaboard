@@ -141,12 +141,15 @@
 
 		e.preventDefault();
 		var queryString = $(".ans-write").serialize();
+		var params = $(".ans-write").serializeObject();
 		var url = $(".ans-write").attr("action");
 
 		$.ajax({
 			type: 'post',
 			url: url,
-			data: queryString,
+			// data: queryString,
+			contentType : 'application/json',
+			data: JSON.stringify(params),
 			dataType: 'json',
 			error: function (request, status, error) {
 				console.error(request, status, error);
@@ -154,7 +157,7 @@
 			},
 			success: function (data) {
 
-				var templateRs = $("#answerTemplate").html().format(data.writer.userId, data.createDate, data.contents, data.question.id, data.id);
+				var templateRs = $("#answerTemplate").html().format(data.userId, data.createDate, data.contents, data.questionId, data.answerId);
 
 				$(".qna-comment-slipp-articles").prepend(templateRs);
 

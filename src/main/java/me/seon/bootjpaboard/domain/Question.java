@@ -1,17 +1,12 @@
 package me.seon.bootjpaboard.domain;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.*;
-import org.springframework.core.annotation.Order;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
-import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -37,12 +32,14 @@ public class Question extends AbstractEntity{
 	@OrderBy("id DESC")
 	private List<Answer> answers;
 
+	@NotEmpty
+	@Column(nullable = false)
 	private String title;
 
 	@Lob
+	@Column(nullable = false)
 	private String contents;
 
-//	private LocalDateTime createDate;
 
 	@Builder
 	public Question(User writer, String title, String content) {
@@ -50,10 +47,6 @@ public class Question extends AbstractEntity{
 		this.title = title;
 		this.contents = content;
 	}
-
-//	public String getFormattedCreateDate() {
-//		return  contents != null ? createDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "";
-//	}
 
 	public void update(String title, String contents) {
 		this.title = title;

@@ -4,6 +4,7 @@ https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-01
     1. 제약조건 맞추기 - nullable, unique 조건등 db 스키마와 동일한 calss 구조를 만드는 것이 바람직하다.
     2. 생성시간, 수정시간 - @CreationTimestamp, @UpdateTimestamp, @Temporal(TemporalType.TIMESTAMP) 활용하기
                             Date Type지원, LocalDateTime Type은 지원안됨.
+                            LocalDateTime는 @CreateDate, @ModifiedDate 이용
     3. 외부에서 접근자로 객체를 생성할수 없게 하기
        @NoArgsConstructor(access = AccessLevel.PROTECTED)
     4. @Builder 을 이용한 유연한 객체 생성 - 순서상관없이 생성됨.
