@@ -5,7 +5,9 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
-	INPUT_VALUE_INVALID("???", "입력값이 올바르지 않습니다.", 400);
+	INPUT_VALUE_INVALID("CM_001", "입력값이 올바르지 않습니다.", 400)
+	,ACCOUNT_NOT_FOUNT("AC_001", "해당 회원을 찾을 수 없습니다.", 404)
+	;
 
 
 	private final String code;

@@ -140,6 +140,13 @@
 	$(".ans-write button").on("click", function (e) {
 
 		e.preventDefault();
+
+		if ($(".ans-write textarea").val().trim() === "") {
+			alert("댓글을 입력해주세요");
+			$(".ans-write textarea").focus();
+			return false;
+		}
+
 		var queryString = $(".ans-write").serialize();
 		var params = $(".ans-write").serializeObject();
 		var url = $(".ans-write").attr("action");
@@ -152,7 +159,10 @@
 			data: JSON.stringify(params),
 			dataType: 'json',
 			error: function (request, status, error) {
-				console.error(request, status, error);
+				// console.error(request, status, error);
+				console.log(request.responseJSON);
+
+				alert(request.responseJSON.message);
 
 			},
 			success: function (data) {

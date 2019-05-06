@@ -2,6 +2,7 @@ package me.seon.bootjpaboard.web;
 
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
+import me.seon.bootjpaboard.exception.AccountNotFountException;
 import me.seon.bootjpaboard.util.HttpSessionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +59,13 @@ public class UserController {
 	@PostMapping("/login")
 	public String login(User user, HttpSession session, Model model) {
 
-		Optional<User> byUserId = repository.findByUserId(user.getUserId());
-		if (byUserId.isPresent()) {
-			if(user.matchPassword(byUserId.get().getPassword())){
-				HttpSessionUtil.setSession(session, byUserId.get());
-				return "redirect:/";
-			}
+		User loginUser = repository.findByUserId(user.getUserId()).orElseThrow(() -> new AccountNotFountException(user.getUserId()));
+
+		if(user.matchPassword(loginUser.getPassword())){
+			HttpSessionUtil.setSession(session, loginUser);
+			return "redirect:/";
 		}
+
 		//실패
 		model.addAttribute("failure",true);
 		return  "/user/login";
@@ -98,7 +99,7 @@ public class UserController {
 		if(!sessionUser.matchId(id))
 			throw new IllegalStateException("you can't update the anther user.");
 
-		User user = repository.findById(id).orElse(null);
+		User user = repository.findById(id).orElseThrow(() -> new AccountNotFountException(sessionUser.getUserId()));
 
 		if(user == null ) return "redirect:/user/loginForm";
 
