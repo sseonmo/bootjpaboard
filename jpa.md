@@ -1,4 +1,4 @@
-# jpa 학습 1일차
+# jpa 학습 Step - 1
 https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-01.md
 
     1. 제약조건 맞추기 - nullable, unique 조건등 db 스키마와 동일한 calss 구조를 만드는 것이 바람직하다.
@@ -32,3 +32,6 @@ https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-01
         } 
         
 **객체 자신을 변경하는것은 객체 자신이 되야한다.**
+
+# jpa 학습 Step - 2
+https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-02.md
