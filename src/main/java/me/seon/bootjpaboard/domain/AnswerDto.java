@@ -42,8 +42,6 @@ public class AnswerDto {
 			this.createDate = answer.getFormattedCreateDate();
 		}
 
-
-
 	}
 
 

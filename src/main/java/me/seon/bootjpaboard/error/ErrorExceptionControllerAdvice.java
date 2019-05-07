@@ -27,7 +27,6 @@ public class ErrorExceptionControllerAdvice {
 	protected  String handleMethodArgmentNotValidExcption(MethodArgumentNotValidException e, HttpServletRequest request) {
 
 		logger.error("handleMethodArgmentNotValidExcption message [{}]", e.getMessage());
-		logger.info("mediaType [{}]", request.getContentType());
 
 
 		BindingResult bindingResult = e.getBindingResult();
