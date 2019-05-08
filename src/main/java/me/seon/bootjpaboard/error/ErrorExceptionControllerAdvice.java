@@ -2,9 +2,11 @@ package me.seon.bootjpaboard.error;
 
 import me.seon.bootjpaboard.exception.AccountNotFountException;
 import me.seon.bootjpaboard.exception.BasicException;
+import me.seon.bootjpaboard.exception.EmailDuplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -50,15 +52,44 @@ public class ErrorExceptionControllerAdvice {
 		return  "forward:/error/handler";
 	}
 
+	@ExceptionHandler(BindException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	protected  String handleMethodArgmentNotValidExcption(BindException e, HttpServletRequest request) {
+
+		logger.error("BindException message [{}]", e.getMessage());
+
+
+		BindingResult bindingResult = e.getBindingResult();
+		List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+
+
+		ErrorResponse errorResponse = buildFieldErrors(
+				ErrorCode.INPUT_VALUE_INVALID,
+				fieldErrors.parallelStream()
+						.map(error -> ErrorResponse.FieldError.builder()
+								.field(error.getField())
+								.value((String) error.getRejectedValue())
+								.reason(error.getDefaultMessage())
+								.build())
+						.collect(Collectors.toList())
+		);
+
+
+		request.setAttribute("error", errorResponse);
+
+		return  "forward:/error/handler";
+	}
+
 
 	@ExceptionHandler(BasicException.class)
 	protected  String basicExcpetionHeandler(BasicException be, HttpServletRequest request) {
 
 		logger.error("BasicException message [{}]", be.getMessage());
 
-
 		if(be instanceof AccountNotFountException)
 			request.setAttribute("error", buildErrors(ErrorCode.ACCOUNT_NOT_FOUNT));
+		else if(be instanceof EmailDuplicationException)
+			request.setAttribute("error", buildErrors(ErrorCode.EMAIL_DUPLICATE));
 
 
 		return  "forward:/error/handler";

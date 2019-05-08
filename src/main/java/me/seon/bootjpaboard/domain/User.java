@@ -2,9 +2,9 @@ package me.seon.bootjpaboard.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import me.seon.bootjpaboard.domain.model.Email;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 
 @Entity
@@ -30,9 +30,11 @@ public class User extends AbstractEntity{
 	@Column(nullable = false)
 	private String name;
 
-	@Email
-	@Column(nullable = false, unique = true)
-	private String email;
+//	@Email
+//	@Column(nullable = false, unique = true)
+//	private String email;
+	@Embedded
+	private Email email;
 
 //	@OneToMany(mappedBy = "writer")
 //	private List<Question> questionList = new ArrayList<>();
@@ -46,7 +48,7 @@ public class User extends AbstractEntity{
 	}
 
 	@Builder
-	public User( String userId, String password, String name, String email) {
+	public User( String userId, String password, String name, Email email) {
 		this.userId = userId;
 		this.password = password;
 		this.name = name;

@@ -4,13 +4,12 @@ import me.seon.bootjpaboard.domain.Question;
 import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
-import org.apache.tomcat.jni.Local;
+import me.seon.bootjpaboard.domain.model.Email;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 
 @Component
 public class InitRunner implements ApplicationRunner {
@@ -23,11 +22,15 @@ public class InitRunner implements ApplicationRunner {
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
+
+		Email email = Email.builder().value("seonmo@gmila.com").build();
+
 		User user = User.builder().userId("seonmo")
 				.password("pass")
 				.name("선모")
-				.email("seonmo@gmila.com")
+				.email(email)
 				.build();
+
 //		User user = new User();
 //		user.setUserId("seonmo");
 //		user.setEmail("seonmo@gmail.com");

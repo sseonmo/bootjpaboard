@@ -1,5 +1,6 @@
 package me.seon.bootjpaboard.web;
 
+import me.seon.bootjpaboard.domain.AccountDto;
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
 import me.seon.bootjpaboard.exception.AccountNotFountException;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import java.util.Optional;
 
 @Controller
@@ -24,6 +26,9 @@ public class UserController {
 
 	@Resource
 	private UserRepository repository;
+
+	@Resource
+	private UserService userService;
 
 	@GetMapping("/loginForm")
 	public String goLogin() {
@@ -83,10 +88,13 @@ public class UserController {
 	}
 
 	@PostMapping("/create")
-	public String create(User user) {
-		logger.debug(user.toString());
-		repository.save(user);
+	public String create(@Valid final AccountDto.SignUpReq user) {
+		logger.debug("create User : [{}]", user.toString());
+
+		userService.create(user);
+
 		return "redirect:/user/list";
+
 	}
 
 	@PutMapping("/{id}")
