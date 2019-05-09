@@ -11,4 +11,8 @@ public class AccountNotFountException extends BasicException {
 	public AccountNotFountException(String id) {
 		this.id = id;
 	}
+
+	public AccountNotFountException() {
+
+	}
 }

@@ -3,6 +3,7 @@ package me.seon.bootjpaboard.error;
 import me.seon.bootjpaboard.exception.AccountNotFountException;
 import me.seon.bootjpaboard.exception.BasicException;
 import me.seon.bootjpaboard.exception.EmailDuplicationException;
+import me.seon.bootjpaboard.exception.UserIdlDuplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,8 @@ public class ErrorExceptionControllerAdvice {
 			request.setAttribute("error", buildErrors(ErrorCode.ACCOUNT_NOT_FOUNT));
 		else if(be instanceof EmailDuplicationException)
 			request.setAttribute("error", buildErrors(ErrorCode.EMAIL_DUPLICATE));
+		else if(be instanceof UserIdlDuplicationException)
+			request.setAttribute("error", buildErrors(ErrorCode.USERID_DUPLICATE));
 
 
 		return  "forward:/error/handler";

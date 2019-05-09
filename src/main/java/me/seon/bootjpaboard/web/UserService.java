@@ -2,9 +2,12 @@ package me.seon.bootjpaboard.web;
 
 import lombok.RequiredArgsConstructor;
 import me.seon.bootjpaboard.domain.AccountDto;
+import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
 import me.seon.bootjpaboard.domain.model.Email;
+import me.seon.bootjpaboard.exception.AccountNotFountException;
 import me.seon.bootjpaboard.exception.EmailDuplicationException;
+import me.seon.bootjpaboard.exception.UserIdlDuplicationException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,6 +24,9 @@ public class UserService {
 		if(isExistedEmail(dto.getEmail()))
 			throw new EmailDuplicationException(dto.getEmail());
 
+		if(isExistedUserIdl(dto.getUserId()))
+			throw new UserIdlDuplicationException(dto.getUserId());
+
 		userRepository.save(dto.toEntity());
 	}
 
@@ -28,5 +34,15 @@ public class UserService {
 		return userRepository.findByEmail(email) != null;
 	}
 
+	public Boolean isExistedUserIdl(String userId) {
+		return userRepository.findByUserId(userId).orElse(null) != null;
+	}
 
+	public User findByUserId(final String userId) {
+		return  userRepository.findByUserId(userId).orElseThrow(() -> new AccountNotFountException(userId));
+	}
+
+	public User findById(final Long id) {
+		return userRepository.findById(id).orElseThrow(AccountNotFountException::new);
+	}
 }

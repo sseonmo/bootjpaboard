@@ -15,7 +15,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/user")
@@ -49,22 +48,24 @@ public class UserController {
 	public String updateForm(@PathVariable Long id, Model model, HttpSession session) throws Exception {
 		logger.debug("updateForm : parameter : [{}]", id);
 
-		if(!HttpSessionUtil.isLoginUser(session)) return "redirect:/user/form";
+		if(!HttpSessionUtil.isLoginUser(session))
+			return "redirect:/user/form";
+
 		User sessionUser = HttpSessionUtil.getUserFormSession(session);
 
 		if (!sessionUser.matchId(id)) {
 			throw new IllegalStateException("you can't update the anther user.");
 		}
 
-		Optional<User> byId = repository.findById(sessionUser.getId());
-		model.addAttribute("user", byId.orElseThrow(Exception::new));
+		model.addAttribute("user", userService.findById(sessionUser.getId()));
 		return "/user/updateForm";
 	}
+
 
 	@PostMapping("/login")
 	public String login(User user, HttpSession session, Model model) {
 
-		User loginUser = repository.findByUserId(user.getUserId()).orElseThrow(() -> new AccountNotFountException(user.getUserId()));
+		User loginUser = userService.findByUserId(user.getUserId());
 
 		if(user.matchPassword(loginUser.getPassword())){
 			HttpSessionUtil.setSession(session, loginUser);
@@ -107,9 +108,14 @@ public class UserController {
 		if(!sessionUser.matchId(id))
 			throw new IllegalStateException("you can't update the anther user.");
 
-		User user = repository.findById(id).orElseThrow(() -> new AccountNotFountException(sessionUser.getUserId()));
+		User user;
 
-		if(user == null ) return "redirect:/user/loginForm";
+		try {
+			user = userService.findById(id);
+
+		} catch (AccountNotFountException ane) {
+			return "redirect:/user/loginForm";
+		}
 
 		user.updateAccout(updatedUser);
 //		repository.save(user);
