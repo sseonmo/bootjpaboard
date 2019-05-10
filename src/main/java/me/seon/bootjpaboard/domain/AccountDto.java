@@ -3,7 +3,7 @@ package me.seon.bootjpaboard.domain;
 import lombok.*;
 import me.seon.bootjpaboard.domain.model.Email;
 
-import javax.persistence.Embedded;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
@@ -16,7 +16,7 @@ public class AccountDto {
 	public static class SignUpReq {
 
 		@NotEmpty
-		@Size(max = 20 )
+		@Size(max = 20)
 		private String userId;
 
 		@NotEmpty
@@ -25,7 +25,7 @@ public class AccountDto {
 		@NotEmpty
 		private String name;
 
-		@Embedded
+		@Valid // @Valid 반드시 필요
 		private Email email;
 
 		@Builder

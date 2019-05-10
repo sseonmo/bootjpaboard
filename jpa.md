@@ -230,3 +230,75 @@ public enum ErrorCode {
     @Pattern(regex=,flag=) 정규식을 만족하는지?
     @Past   과거날짜인지?
     @Size(min=,max=)  문자열 또는 배열등의 길이 만족 여부
+
+
+# jpa 학습 Step - 3 / validate, 예외처리(2)
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-03.md
+
+##@Embeddable / @Embedded
+
+```java
+@Embeddable
+public class Email {
+
+	@Column(name = "email", nullable = false, unique = true)
+	private String value;	
+
+}
+
+
+public class User extends AbstractEntity{
+
+	@Embedded
+	private Email email;
+
+}
+
+public static class SignUpReq {
+
+		@Valid // @Valid 반드시 필요
+		private Email email;
+
+        ...
+        
+		@Builder
+		public SignUpReq(@NotEmpty @Size(max = 20) String userId, @NotEmpty String password, @NotEmpty String name, Email email) {
+			this.userId = userId;
+			this.password = password;
+			this.name = name;
+			this.email = email;
+		}
+
+		public User toEntity() {
+			return User.builder()
+					.userId(this.userId)
+					.password(this.password)
+					.name(this.name)
+					.email(this.email)
+					.build();
+		}
+	}
+
+```
+
+@Embeddable / @Embedded 를 활용해서 validate 를 적용했지만 다른 관점에서 보자면 @Embeddable 를 통해 관심사가 비슷한 
+프로퍼티를 한 클래스에 묶어 관리할 수 있다는게 핵심이 아닐까 싶다. 그냥 내 생각.
+
+임베디드 타입으로 정의되었을때 json 형태 - address, email, name
+```json
+{
+  "address": {
+    "address1": "string",
+    "address2": "string",
+    "zip": "string"
+  },
+  "email": {
+    "address": "string"
+  },
+  "name":{
+    "first": "name",
+    "last": "name"
+  },
+  "password": "string"
+}
+``` 
