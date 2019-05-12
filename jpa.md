@@ -301,4 +301,100 @@ public static class SignUpReq {
   },
   "password": "string"
 }
-``` 
+```
+
+# jpa 학습 Step - 4 / Embedded를 이용한 Password 처리
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-04.md
+
+
+ ## Embeddable 타입의 Password  클래스 정의
+ ### 비밀번호 요구사항
+ * 비밀번호 만료 기본 14일 기간이 있다.
+ * 비밀번호 만료 기간이 지나는 것을 알 수 있어야 한다.
+ * 비밀번호 5회 이상 실패했을 경우 더 이상 시도를 못하게 해야 한다.
+ * 비밀번호가 일치하는 경우 실패 카운트를 초기화 해야한다
+ * 비밀번호 변경시 만료일이 현재시간 기준 14로 연장되어야한다.
+ 
+ ```java
+@Embeddable
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Password {
+
+	@Column(name = "password", nullable = false)
+	private String value;
+
+	@Column(name = "password_expiratrion_date")
+	private LocalDateTime expirationDate;
+
+	@Column(name = "password_failed_count", nullable = false)
+	private int failedCount;
+
+	@Column(name = "pasword_ttl")
+	private long ttl;
+
+	@Builder
+	public Password(final String value) {
+//		this.ttl = 2109_604;
+		this.ttl = 60 * 60 * 24 * 14; // 14일
+		this.value = value;
+		this.expirationDate = extendExpirationDate();
+	}
+
+	private LocalDateTime extendExpirationDate() {
+		return LocalDateTime.now().plusSeconds(ttl);
+	}
+
+
+	public Boolean isMatched(final String password) {
+
+		// 비밀번호 실패 제한이 있을경우
+//		if(failedCount > 5) throw new PasswordFaildExceed();
+
+		Boolean result = isMatches(password);
+
+		updateFailedCount(result);
+
+		return result;
+	}
+
+	private Boolean isMatches(String password) {
+		return this.value.equals(password) ;
+	}
+
+	private void updateFailedCount(boolean matches) {
+		if (matches)
+			resetFailedCount();
+		else
+			increaseFailedCount();
+	}
+
+	private void resetFailedCount() {
+		this.failedCount = 0;
+	}
+
+	private void increaseFailedCount() {
+		this.failedCount++;
+	}
+
+	// 비밀번호 유효기간이 정해져있을때...
+	public Boolean isExpiration() {
+		return LocalDateTime.now().isAfter(this.expirationDate);
+	}
+
+	// 비밀번호 변경
+	public Boolean changePassword(final String oldPassword) {
+		Boolean result = isMatches(oldPassword);
+		if(result)  this.expirationDate = extendExpirationDate();
+
+		return result;
+
+	}
+
+}
+
+```
+`객체의 변경이나 질의는 반드시 해당 객체에 의해서 이루어져야 한다.
+결과적으로 password에 대한 책임이 명확해진다.`
+ 
+ 
