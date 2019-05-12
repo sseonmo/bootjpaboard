@@ -38,8 +38,9 @@ public class UserService {
 		return userRepository.findByUserId(userId).orElse(null) != null;
 	}
 
-	public User findByUserId(final String userId) {
-		return  userRepository.findByUserId(userId).orElseThrow(() -> new AccountNotFountException(userId));
+	public User findByUserId(final AccountDto.LoginReq dto) {
+
+		return  userRepository.findByUserId(dto.getUserId()).orElseThrow(() -> new AccountNotFountException(dto.getUserId()));
 	}
 
 	public User findById(final Long id) {

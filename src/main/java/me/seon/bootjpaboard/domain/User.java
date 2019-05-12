@@ -3,6 +3,7 @@ package me.seon.bootjpaboard.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import me.seon.bootjpaboard.domain.model.Email;
+import me.seon.bootjpaboard.domain.model.Password;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -20,11 +21,12 @@ public class User extends AbstractEntity{
 	@Column(nullable = false, length = 20, unique = true)
 	private String userId;
 
-
-	@JsonIgnore
-	@NotEmpty
-	@Column(nullable = false)
-	private String password;
+//	@JsonIgnore
+//	@NotEmpty
+//	@Column(nullable = false)
+//	private String password;
+	@Embedded
+	private Password password;
 
 	@NotEmpty
 	@Column(nullable = false)
@@ -48,7 +50,7 @@ public class User extends AbstractEntity{
 	}
 
 	@Builder
-	public User( String userId, String password, String name, Email email) {
+	public User( String userId, Password password, String name, Email email) {
 		this.userId = userId;
 		this.password = password;
 		this.name = name;
@@ -60,8 +62,8 @@ public class User extends AbstractEntity{
 		return newId.equals(this.getId());
 	}
 
-	public boolean matchPassword(String newPassword) {
-		if( newPassword == null ) return false;
-		return newPassword.equals(password);
-	}
+//	public boolean matchPassword(String newPassword) {
+//		if( newPassword == null ) return false;
+//		return newPassword.equals(password);
+//	}
 }

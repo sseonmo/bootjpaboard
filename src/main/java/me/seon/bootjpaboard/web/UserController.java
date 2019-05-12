@@ -63,11 +63,11 @@ public class UserController {
 
 
 	@PostMapping("/login")
-	public String login(User user, HttpSession session, Model model) {
+	public String login(@Valid final AccountDto.LoginReq loginDto , HttpSession session, Model model) {
 
-		User loginUser = userService.findByUserId(user.getUserId());
+		User loginUser = userService.findByUserId(loginDto);
 
-		if(user.matchPassword(loginUser.getPassword())){
+		if (loginDto.getPassword().isMatched(loginUser.getPassword().getValue())) {
 			HttpSessionUtil.setSession(session, loginUser);
 			return "redirect:/";
 		}

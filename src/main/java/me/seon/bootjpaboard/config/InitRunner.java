@@ -5,6 +5,7 @@ import me.seon.bootjpaboard.domain.QuestionRepository;
 import me.seon.bootjpaboard.domain.User;
 import me.seon.bootjpaboard.domain.UserRepository;
 import me.seon.bootjpaboard.domain.model.Email;
+import me.seon.bootjpaboard.domain.model.Password;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -24,9 +25,10 @@ public class InitRunner implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 
 		Email email = Email.builder().value("seonmo@gmila.com").build();
+		Password password = Password.builder().value("pass").build();
 
 		User user = User.builder().userId("seonmo")
-				.password("pass")
+				.password(password)
 				.name("선모")
 				.email(email)
 				.build();
