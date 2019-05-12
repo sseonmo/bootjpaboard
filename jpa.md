@@ -398,3 +398,86 @@ public class Password {
 결과적으로 password에 대한 책임이 명확해진다.`
  
  
+# jpa 학습 Step - 5 /  OneToMany 관계 설정 팁
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-05.md
+
+
+
+# 영속성 전이 CASCADE
+ 
+>참조 
+* <http://wonwoo.ml/index.php/post/1002>
+* <https://yellowh.tistory.com/127>
+
+```java
+@Entity
+@Data
+public class Parent {
+
+  @Id @GeneratedValue
+  private Long id;
+
+  @OneToMany(mappedBy = "parent")
+  private List<Child> children = new ArrayList<>();
+}
+
+@Entity
+@Data
+public class Child {
+
+  @Id @GeneratedValue
+  private Long ig;
+
+  @ManyToOne
+  private Parent parent;
+}
+
+
+```
+#### CascadeType.PERSIST<저장> - 부모를 영속화할 때 연관된 자식들도 함께 영속화 한다
+CascadeType.persist는 연관된 엔티티도 같이 영속화하라는 옵션이다.
+영속성 전이는 연관관계를 매핑하는 것과는 무관하다. 단지 연관된 엔티티도 같이 영속화하기 위한 기능이다.
+```java
+@Entity
+@Data
+public class Parent {
+
+  @Id @GeneratedValue
+  private Long id;
+
+  @OneToMany(mappedBy = "parent" ,cascade = CascadeType.PERSIST)
+  private List<Child> children = new ArrayList<>();
+}
+```
+```java
+private static void saveWithCascade(EntityManager entityManager){
+  Child child1 = new Child();
+  Child child2 = new Child();
+
+  Parent parent = new Parent();
+  child1.setParent(parent);
+  child2.setParent(parent);
+
+  parent.getChildren().add(child1);
+  parent.getChildren().add(child2);
+
+  entityManager.persist(parent);
+}
+```
+
+#### CascadeType.REMOVE<삭제> - 부모 엔티티와 연관된 자식 엔티티도 함께 삭제 한다
+ ```java
+@OneToMany(mappedBy = "parent" ,cascade = CascadeType.REMOVE)
+private List<Child> children = new ArrayList<>();
+ ```
+ ```java
+private static void deleteWithCascade(EntityManager entityManager){
+  Parent parent = entityManager.find(Parent.class, 1L);
+  entityManager.remove(parent);
+}
+```
+CascadeType.REMOVE 를 설정하지 않고 부모엔티티만 삭제하려 했다면 외뢰키 제약조건으로 예외가 발생한다.
+
+#### CascadeType.DETACH - 부모 엔티티가 detach()를 수행하게 되면, 연관된 엔티티도 detach() 상태가 되어 변경사항이 반영되지 않는다
+#### CascadeType.MERGE - 트랜잭션이 종료되고 detach 상태에서 연관 엔티티를 추가하거나 변경된 이후에 부모 엔티티가 merge()를 수행하게 되면 변경사항이 적용된다.(연관 엔티티의 추가 및 수정 모두 반영됨)
+#### CascadeType.ALL – 모든 Cascade 적용
