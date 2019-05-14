@@ -109,7 +109,8 @@ public class QuestionController {
 		Result result = vaild(session, question);
 
 		if (result.isVaild()) {
-			repository.deleteById(question.getId());
+//			repository.deleteById(question.getId());
+			question.delete();
 			return "redirect:/";
 		}
 

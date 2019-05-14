@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
@@ -36,6 +37,12 @@ public class Question extends AbstractEntity{
 	@Column(nullable = false)
 	private String title;
 
+	@OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<QuestionHistory> histories = new ArrayList<>();
+
+	@Column(nullable = false)
+	private String delYn;
+
 	@Lob
 	@Column(nullable = false)
 	private String contents;
@@ -46,11 +53,32 @@ public class Question extends AbstractEntity{
 		this.writer = writer;
 		this.title = title;
 		this.contents = content;
+		this.delYn = "N";
+		addHistory(Status.CREATE);
+
 	}
 
 	public void update(String title, String contents) {
 		this.title = title;
 		this.contents = contents;
+		addHistory(Status.UPDATE);
+	}
+
+	public void delete() {
+		this.delYn = "Y";
+		addHistory(Status.DELETE);
+	}
+
+	private void addHistory(Status status) {
+		this.histories.add(buildHistory(status));
+	}
+
+	private QuestionHistory buildHistory(Status status) {
+		return QuestionHistory.builder()
+				.status(status)
+				.question(this)
+				.build();
+
 	}
 
 	public Boolean isEqualsWriter(User loginUser) {

@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 
 public class AccountDto {
 
-
 	@Getter
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	public static class LoginReq {
@@ -33,7 +32,6 @@ public class AccountDto {
 	@Getter
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@ToString
-
 	public static class SignUpReq {
 
 		@NotEmpty
