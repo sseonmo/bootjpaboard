@@ -402,7 +402,82 @@ public class Password {
 참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-05.md
 
 
+Question과 QuestionHistory 는 1:N 관계이고
+Question 생성, 수정, 삭제 여부에 따라서 QuestionHistory가 쌓이는 구조이다. 
 
+```java
+public class Question extends AbstractEntity{
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@NotEmpty
+	@Column(nullable = false)
+	private String title;
+
+	@OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
+	private List<QuestionHistory> histories = new ArrayList<>();
+	
+	....
+}
+
+public class QuestionHistory extends AbstractEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, updatable = false)
+	private Status status;
+
+	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+	@ManyToOne
+	@JoinColumn(name = "question_id", nullable = false, updatable = false)
+	private Question question;
+
+	@Builder
+	public QuestionHistory(Status status, Question question) {
+		this.status = status;
+		this.question = question;
+	}
+}
+
+```
+
+ ###1:N 관계 팁
+ *  Question 통해서 QuestionHistory를 관리함으로 CascadeType.PERSIST 설정을 주었습니다.
+ *  1:N 관계를 맺을경우 List를 주로 사용하는데 객체생성을 null 로 하는것 보다는 `new ArrayList<>()`로 설정하는것이 바람직
+ 하다. 초기화 하기 않았을 경우 기본적인 collection 함수를 사용할 수 가없다. 
+ ```java
+public class Question extends AbstractEntity{
+	....
+	
+	@OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
+    	private List<QuestionHistory> histories = new ArrayList<>();
+		
+    private void addHistory(Status status) {
+         this.histories.add(buildHistory(status));
+     }
+     
+     private QuestionHistory buildHistory(Status status) {
+         return QuestionHistory.builder()
+                 .status(status)
+                 .question(this)
+                 .build();
+     
+     }
+ }
+``` 
+*   CascadeType.PERSIST 설정을 주면 Question에서 QuestionHistory를 저장시킬 수 있습니다. 
+이 때 ArrayList 형으로 지정돼 있다면 add 함수를 통해서 쉽게 저장할 수 있습니다. 이렇듯 ArrayList의 다양한 함수들을 사용할 수 있습니다.
+*   FetchType.EAGER 통해서 모든 정보를 가져오고 있습니다. 로그 정보가 수십 개 이상일 겨우는 Lazy 로딩을 통해서 가져오는것이 좋지만
+3~4개 정도 가정햇을 경우 FetchType.EAGER도 나쁘지 않다고 생각합니다.(내 생각 아님.. ㅋ 성능상 영향은 없을 거 같다.(내 생각 ㅋ))
+
+
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
  
 >참조 

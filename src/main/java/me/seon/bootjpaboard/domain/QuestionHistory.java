@@ -12,14 +12,11 @@ import javax.persistence.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QuestionHistory {
+public class QuestionHistory extends AbstractEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
-	@Embedded
-	private DateTime dateTime;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false, updatable = false)

@@ -11,7 +11,6 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import static springfox.documentation.builders.PathSelectors.ant;
-import static springfox.documentation.builders.PathSelectors.regex;
 
 @SpringBootApplication
 // domain에 생성일, 수정일을 자동 매핑해 준다.

@@ -1,9 +1,7 @@
 package me.seon.bootjpaboard.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
@@ -14,7 +12,6 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Objects;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -23,14 +20,12 @@ class AbstractEntity {
 
 
 	@CreatedDate
-//	@CreationTimestamp
 	@Column(updatable = false)
 	@JsonFormat(shape = JsonFormat.Shape.STRING,  pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime createDate;
 
 
 	@LastModifiedDate
-//	@UpdateTimestamp
 	@JsonFormat(shape = JsonFormat.Shape.STRING,  pattern = "yyyy-MM-dd HH:mm:ss")
 	private LocalDateTime modifyDate;
 
