@@ -475,6 +475,102 @@ public class Question extends AbstractEntity{
 *   FetchType.EAGER 통해서 모든 정보를 가져오고 있습니다. 로그 정보가 수십 개 이상일 겨우는 Lazy 로딩을 통해서 가져오는것이 좋지만
 3~4개 정도 가정햇을 경우 FetchType.EAGER도 나쁘지 않다고 생각합니다.(내 생각 아님.. ㅋ 성능상 영향은 없을 거 같다.(내 생각 ㅋ))
 
+#step-06: Setter 사용하지 않기
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-06.md
+
+이미 여러번 참조하는 필자가 해왔던 애기를 정리해서 다시한번 설명하는 느낌 이랄까... 
+습관처럼 사용하는 setter의 단점과 setter를 이용하지 않고 도메인 객체를 변경하는 방법을 소개
+
+### Setter 메소드는 의도를 갖기 힘들다.
+중구난방으로 사용할 수 있는 setter 를 사용하면 어떤의미 파악하기 위해서  함께 사용하는  setter 조합이나 setter를 사용하는 메서드를 
+보고 판단할 수 있다. 하지만 도메인 클래스의 의미을 파악할 수 있는 메소드를 이용해 필요한 지역변수를 변경하면
+의도가 명확하게 판단할 수 있다.(도메인은 변경은 도메인 클레스에서 이루어 지는게 바람직하다.)   
+```java 
+//setter 이용
+public Account updateMyAccount(long id, AccountDto.MyAccountReq dto) {
+    final Account account = findById(id);
+    account.setAddress("value");
+    account.setFistName("value");
+    account.setLastName("value");
+    return account;
+}
+
+//도메인 클래스 method 이용
+public Account updateMyAccount(long id, AccountDto.MyAccountReq dto) {
+    final Account account = findById(id);
+    account.updateMyAccount(dto);
+    return account;
+}
+
+// Account 도메인 클래스
+public void updateMyAccount(AccountDto.MyAccountReq dto) {
+    this.address = dto.getAddress();
+    this.fistName = dto.getFistName();
+    this.lastName = dto.getLastName();
+}
+
+```
+
+그리고 변경될 값에 대한 명확한 명세가 있은 DTO를 두는 것이 바람직합니다.
+```java
+public static class MyAccountReq {
+		private Address address;
+		private String firstName;
+		private String lastName;
+}
+```
+
+
+### Setter 메소드는 사용하지 않기
+
+####updateMyAccount
+```java
+public Account updateMyAccount(long id, AccountDto.MyAccountReq dto) {
+    final Account account = findById(id);
+    account.updateMyAccount(dto);
+    return account;
+}
+// Account 도메인 클래스
+public void updateMyAccount(AccountDto.MyAccountReq dto) {
+    this.address = dto.getAddress();
+    this.fistName = dto.getFistName();
+    this.lastName = dto.getLastName();
+}
+```
+위의 예제와 같은 예제 코드입니다. findById 메소드를 통해서 영속성을 가진 객체를 가져오고 도메인에 작성된 updateMyAccount를 통해서 업데이트를 진행하고 있습니다.
+
+repository.save() 메소드를 사용하지 않았습니다. 
+다시 말해 메소드들은 객체 그 자신을 통해서 데이터베이스 변경작업을 진행하고, create 메서드에 대해서만 repository.save()를 사용합니다
+
+####create
+save 메소드에는 도메인 객체가 필요하다. 
+dto 클래스에  toEntity 메소드를 이용하여 도메인 객체를 생성하여 save 한다.(@builder 패턴이용)
+
+```java
+// 전체 코드를 보시는 것을 추천드립니다.
+public static class SignUpReq {
+
+	private com.cheese.springjpa.Account.model.Email email;
+	private Address address;
+
+	@Builder
+	public SignUpReq(Email email, String fistName, String lastName, String password, Address address) {
+        this.email = email;
+        this.address = address;
+	}
+
+	public Account toEntity() {
+        return Account.builder()
+            .email(this.email)
+            .address(this.address)
+            .build();
+	}
+}
+
+public Account create(AccountDto.SignUpReq dto) {
+    return accountRepository.save(dto.toEntity());
+}
+```
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
