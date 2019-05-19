@@ -519,8 +519,6 @@ public static class MyAccountReq {
 		private String lastName;
 }
 ```
-
-
 ### Setter 메소드는 사용하지 않기
 
 ####updateMyAccount
@@ -571,6 +569,62 @@ public Account create(AccountDto.SignUpReq dto) {
     return accountRepository.save(dto.toEntity());
 }
 ```
+
+
+#step-07: Embedded를 적극활용
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-07.md
+
+Embedded를 사용하면 칼럼들을 자료형으로 규합해서 응집력 및 재사용성을 높여 훨씬 더 객체지향 프로그래밍을 할수 있게 도울 수 있다. 
+그리고 또 하나 객체에게 명확한 책임을 역활을 나눌수 있다.
+
+### 풍부한 객체(Rich Object)
+```java
+
+public class Email {
+    ...
+    public String getHost() {
+        int index = value.indexOf("@");
+        return value.substring(index);
+    }
+
+    public String getId() {
+        int index = value.indexOf("@");
+        return value.substring(0, index);
+    }
+}
+
+``` 
+
+### 재사용성
+가령 해외 송금을 하는 기능이 있다고 가정할 경우 Remittance 클래스는 보내는 금액, 나라, 통화, 받는 금액, 나라, 통화가 필요하다. 이처럼 도메인이 복잡해질수록 더 재사용성은 중요합니다.
+
+```java
+class Remittance{
+    //자료형이 없는 경우
+    @Column(name = "send_amount") private double sendAamount;
+    @Column(name = "send_country") private String sendCountry;
+    @Column(name = "send_currency") private String sendCurrency;
+
+    @Column(name = "receive_amount") private double receiveAamount;
+    @Column(name = "receive_country") private String receiveCountry;
+    @Column(name = "receive_currency") private String receiveCurrency;
+
+    //Money 자료형
+    private Money snedMoney;
+    private Money receiveMoney;
+}
+class Money {
+    @Column(name = "amount", nullable = false, updatable = false) private double amount;
+    @Column(name = "country", nullable = false, updatable = false) private Country country;
+    @Column(name = "currency", nullable = false, updatable = false) private Currency currency;
+}
+
+```
+
+위처럼 Money라는 자료형을 두고 금액, 나라, 통화를 두면 도메인을 이해하는데 한결 수월할 뿐만 아니라 수많은 곳에서 재사용 할 수 있습니다. 사용자에게 해당 통화로 금액을 보여줄 때 소숫자리 몇 자리로 보여줄 것인지 등등 핵심 도메인일수록 재사용성을 높여 중복 코드를 제거하고 응집력을 높일 수 있습니다.  
+
+
+
 
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
