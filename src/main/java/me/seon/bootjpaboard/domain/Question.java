@@ -25,19 +25,19 @@ public class Question extends AbstractEntity{
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "writer_id")
+	@JoinColumn(name = "writer_id", referencedColumnName = "id", nullable = false)
 //	@JoinColumn(foreignKey = @ForeignKey(name = "fk_question_writer"))
 	private User writer;
 
-	@OneToMany(mappedBy = "question")
+	@OneToMany(mappedBy = "question", orphanRemoval = true, fetch = FetchType.LAZY)
 	@OrderBy("id DESC")
-	private List<Answer> answers;
+	private List<Answer> answers = new ArrayList<>();
 
 	@NotEmpty
 	@Column(nullable = false)
 	private String title;
 
-	@OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "question", cascade = CascadeType.PERSIST, orphanRemoval = true, fetch = FetchType.LAZY)
 	private List<QuestionHistory> histories = new ArrayList<>();
 
 	@Column(nullable = false)

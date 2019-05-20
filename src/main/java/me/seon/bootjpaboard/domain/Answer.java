@@ -27,11 +27,11 @@ public class Answer extends AbstractEntity {
 	private Long id;
 
 	@ManyToOne
-	@JoinColumn(name = "writer_id")
+	@JoinColumn(name = "writer_id", referencedColumnName = "id", nullable = false)
 	private User writer;
 
 	@ManyToOne
-	@JoinColumn(name = "question_id")
+	@JoinColumn(name = "question_id", referencedColumnName = "id", nullable = false)
 //	@JsonBackReference
 	private Question question;
 

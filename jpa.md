@@ -446,7 +446,7 @@ public class QuestionHistory extends AbstractEntity {
 
 ```
 
- ###1:N 관계 팁
+ ### 1:N 관계 팁
  *  Question 통해서 QuestionHistory를 관리함으로 CascadeType.PERSIST 설정을 주었습니다.
  *  1:N 관계를 맺을경우 List를 주로 사용하는데 객체생성을 null 로 하는것 보다는 `new ArrayList<>()`로 설정하는것이 바람직
  하다. 초기화 하기 않았을 경우 기본적인 collection 함수를 사용할 수 가없다. 
@@ -475,7 +475,7 @@ public class Question extends AbstractEntity{
 *   FetchType.EAGER 통해서 모든 정보를 가져오고 있습니다. 로그 정보가 수십 개 이상일 겨우는 Lazy 로딩을 통해서 가져오는것이 좋지만
 3~4개 정도 가정햇을 경우 FetchType.EAGER도 나쁘지 않다고 생각합니다.(내 생각 아님.. ㅋ 성능상 영향은 없을 거 같다.(내 생각 ㅋ))
 
-#step-06: Setter 사용하지 않기
+# step-06: Setter 사용하지 않기
 참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-06.md
 
 이미 여러번 참조하는 필자가 해왔던 애기를 정리해서 다시한번 설명하는 느낌 이랄까... 
@@ -521,7 +521,7 @@ public static class MyAccountReq {
 ```
 ### Setter 메소드는 사용하지 않기
 
-####updateMyAccount
+#### updateMyAccount
 ```java
 public Account updateMyAccount(long id, AccountDto.MyAccountReq dto) {
     final Account account = findById(id);
@@ -540,7 +540,7 @@ public void updateMyAccount(AccountDto.MyAccountReq dto) {
 repository.save() 메소드를 사용하지 않았습니다. 
 다시 말해 메소드들은 객체 그 자신을 통해서 데이터베이스 변경작업을 진행하고, create 메서드에 대해서만 repository.save()를 사용합니다
 
-####create
+#### create
 save 메소드에는 도메인 객체가 필요하다. 
 dto 클래스에  toEntity 메소드를 이용하여 도메인 객체를 생성하여 save 한다.(@builder 패턴이용)
 
@@ -571,7 +571,7 @@ public Account create(AccountDto.SignUpReq dto) {
 ```
 
 
-#step-07: Embedded를 적극활용
+# step-07: Embedded를 적극활용
 참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-07.md
 
 Embedded를 사용하면 칼럼들을 자료형으로 규합해서 응집력 및 재사용성을 높여 훨씬 더 객체지향 프로그래밍을 할수 있게 도울 수 있다. 
@@ -624,10 +624,115 @@ class Money {
 위처럼 Money라는 자료형을 두고 금액, 나라, 통화를 두면 도메인을 이해하는데 한결 수월할 뿐만 아니라 수많은 곳에서 재사용 할 수 있습니다. 사용자에게 해당 통화로 금액을 보여줄 때 소숫자리 몇 자리로 보여줄 것인지 등등 핵심 도메인일수록 재사용성을 높여 중복 코드를 제거하고 응집력을 높일 수 있습니다.  
 
 
+# step-08: OneToOne 관계 설정 팁
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-08.md
 
+OneToOne 관계 설정 시에 간단한 팁을 정리하겠습니다. 해당 객체들의 성격은 다음과 같습니다.
 
+*   주문과 쿠폰 엔티티가 있다.
+*   주문 시 쿠폰을 적용해서 할인받을 수 있다.
+*   주문과 쿠폰 관계는 1:1 관계 즉 OneToOne 관계이다.
 
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+주의 깊게 살펴볼 내용은 다음과 같습니다.
+
+*   외래 키는 어디 테이블에 두는 것이 좋은가?
+*   양방향 연관 관계 편의 메소드
+*   제약 조건으로 인한 안정성 및 성능 향상
+
+`외래키를 어디 테이블이 같은것일 좋을까??`
+**JPA상 외래키를 같는 쪽이 연관 관계의 주인이되고 연관 관계의 주인만이 데이터베이스 연관 관계와 매핑되어 외래 키를 관리(등록, 수정, 삭제) 할 수 있다.**
+
+### Order가 주인일때
+#### 장점 - insert sql를 한번 실행
+ 
+```java 
+// order가 연관 관계의 주인일 경우 SQL
+insert into orders (id, coupon_id, price) values (null, ?, ?) 
+
+//coupon이 연관 관계의 주인일 경우 SQL
+insert into orders (id, price) values (null, ?)
+update coupon set discount_amount=?, order_id=?, use=? where id=?
+```
+(coupon는 이미 등록되어있음)
+order 테이블에 coupon_id 칼럼을 저장하기 때문에 주문 SQL은 한 번만 실행됩니다. 
+반면에 coupon이 연관 관계의 주인일 경우에는 coupon에 order의 외래 키가 있으니 order INSERT SQL 한 번, 
+coupon 테이블에 order_id 칼럼 업데이트 쿼리 한번 총 2번의 쿼리가 실행됩니다.
+
+작은 장점으로는 데이터베이스 칼럼에 coupon_id 항목이 null이 아닌 경우 할인 쿠폰이 적용된 것으로 판단할 수 있습니다.
+
+#### 단점 - 연관 관계 변경 시 취약
+
+기존 요구사항은 주문 한 개에 쿠폰은 한 개만 적용 이 가는 했기 때문에 OneToOne 연관 관계를 맺었지만 
+하나의 주문에 여러 개의 쿠폰이 적용되는 기능이 추가되었을 때 변경하기 어렵다는 단점이 있습니다.
+(OneToOne => OneToMany 구조변경 어려움(migration 이슈 발생) ) 
+
+### 연관 관계의 주인 설정
+
+**주인 설정이라고 하면 뭔가 더 중요한 것이 주인이 되어야 할 거 같다는 생각이 들지만 
+연관 관계의 주인이라는 것은 왜래 키의 위치와 관련해서 정해야 하지 해당 도메인의 중요성과는 상관관계가 없습니다.**
+
+OneToOne 관계를 맺으며 외래키를 어디에 둘건인지를 확장성을 고려해 Many로 변경할 수도 잇는 객체가 가지는 것이 좀 더 좋치 않을까싶다.
+
+### 양방향 연관관계 편의 메소드
+
+```java
+
+// Order가 연관관계의 주인일 경우 예제
+class Coupon {
+    ...
+    // 연관관계 편의 메소드
+    public void use(final Order order) {
+        this.order = order;
+        this.use = true;
+    }
+}
+
+class Order {
+    private Coupon coupon; //(1)
+    ...
+    // 연관관계 편의 메소드
+    public void applyCoupon(final Coupon coupon) {
+        this.coupon = coupon;
+        coupon.use(this);
+        price -= coupon.getDiscountAmount();
+    }
+}
+
+// 주문 생성시 1,000 할인 쿠폰 적용
+public Order order() {
+    final Order order = Order.builder().price(1_0000).build(); // 10,000 상품주문
+    Coupon coupon = couponService.findById(1); // 1,000 할인 쿠폰
+    order.applyCoupon(coupon);
+    return orderRepository.save(order);
+}
+
+```
+연관 관계의 주인이 해당 참조할 객체를 넣어줘야 데이터베이스의 칼럼에 외래 키가 저장됩니다. 즉 Order가 연관 관계의 주인이면 (1)번 멤버 필드에 Coupon을 넣어줘야 데이터베이스 order 테이블에 coupon_id 칼럼에 저장됩니다.
+
+양방향 연관 관계일 경우 위처럼 연관 관계 편의 메소드를 작성하는 것이 좋습니다. 위에서 말했듯이 연관 관계의 주인만이 왜래 키를 관리 할 수 있으니 applyCoupon 메소드는 이해하는데 어렵지 않습니다.
+
+### 제약 조건으로 인한 안정 성 및 성능 향상
+
+```java
+public class Order {
+    ...
+
+    @OneToOne
+    @JoinColumn(name = "coupon_id", referencedColumnName = "id", nullable = false)
+    private Coupon coupon;
+}
+
+```
+
+모든 주문에 할인 쿠폰이 적용된다면 @JoinColumn의 nullable 옵션을 false로 주는 것이 좋습니다. NOT NULL 제약 조건을 준수해서 안전성이 보장됩니다.
+
+* nullable = false , inner join
+* nullable = true  , outer join
+
+**외래 키에 NOT NULL 제약 조건을 설정하면 값이 있는 것을 보장합니다. 
+따라서 JPA는 이때 내부조인을 통해서 내부 조인 SQL을 만들어 주고 이것은 외부 조인보다 성능과 최적화에 더 좋습니다.**
+
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
  
 >참조 
