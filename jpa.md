@@ -732,6 +732,42 @@ public class Order {
 **외래 키에 NOT NULL 제약 조건을 설정하면 값이 있는 것을 보장합니다. 
 따라서 JPA는 이때 내부조인을 통해서 내부 조인 SQL을 만들어 주고 이것은 외부 조인보다 성능과 최적화에 더 좋습니다.**
 
+# step-09: OneToMany 관계 설정 팁(2)
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-09.md
+
+### CasCade PERSIST 설정
+헷갈리지 말자!! PERSIST 설정은 부모 엔티티가 영속화 될때 관련된 다른 엔티티도 같이 영속화 하는 옵션이다.
+**연관관계랑은 상관이 없어요**
+```java
+ // cascade PERSIST 설정 안 했을 경우
+ insert into question (id, create_at, create_date, modify_date, update_at, contents, del_yn, title, writer_id) values (null, ?, ?, ?, ?, ?, ?, ?, ?)
+
+ // cascade PERSIST 설정 했을 경우
+ insert into question (id, create_at, create_date, modify_date, update_at, contents, del_yn, title, writer_id) values (null, ?, ?, ?, ?, ?, ?, ?, ?)
+ insert into question_history (id, create_at, create_date, modify_date, update_at, question_id, status) values (null, ?, ?, ?, ?, ?, ?)
+ 
+```
+
+## 고아 객체 (orphanRemoval)
+JPA는 부모 엔티티와 연관관계가 끊어진 자식 엔티티를 자동으로 삭제하는 기능을 제공한다. 이를 고아객체 제거라고 한다.
+이 기능은 부모 엔티티의 컬렉션에서 자식 엔티티의 참조만 제거하면 자식 엔티티가 자동으로 삭제 돼서 개발의 편리함이 있습니다.
+**연관관계랑은 상관이 없어요**
+
+```java
+ // question를 삭제하려고 할때
+ 
+ // orphanRemoval=false - FOREIGN KEY 에러발생
+ org.h2.jdbc.JdbcSQLException: Referential integrity constraint violation: "FKJE5JKPP1J8JR08KQN8J8O8O6E: PUBLIC.QUESTION_HISTORY FOREIGN KEY(QUESTION_ID) REFERENCES PUBLIC.QUESTION(ID) (1)"; SQL statement:
+
+ // orphanRemoval=true
+ delete from question_history where id=?
+ delete from question where id=?
+ 
+```
+Question, QuestionHistory 는 참조 관계를 맺고 잇어 Question 만 삭제할 수 없습니다. 
+orphanRemoval 설정이 되어있는 경우 쉽게 삭제 가능하지만,
+rphanRemoval 설정이 없는 경우 그 작업을 선행하지 않아 FOREIGN KEY 에러발생 한다.
+
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
  
