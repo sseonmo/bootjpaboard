@@ -768,6 +768,169 @@ Question, QuestionHistory 는 참조 관계를 맺고 잇어 Question 만 삭제
 orphanRemoval 설정이 되어있는 경우 쉽게 삭제 가능하지만,
 rphanRemoval 설정이 없는 경우 그 작업을 선행하지 않아 FOREIGN KEY 에러발생 한다.
 
+# step-10: Properties 설정값
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-10.md
+
+### 추천패턴 - ConfigurationProperties
+```java
+@Configuration
+@ConfigurationProperties(prefix = "user")
+@Validated
+public class SampleProperties {
+    @Email
+    private String email;
+    @NotEmpty
+    private String nickname;
+    private int age;
+    private boolean auth;
+    private double amount;
+
+    // getter, setter
+}
+
+public class SamplePropertiesRunner implements ApplicationRunner {
+    private final SampleProperties properties;
+    @Override
+    public void run(ApplicationArguments args)  {
+        final String email = properties.getEmail();
+        final String nickname = properties.getNickname();
+        final int age = properties.getAge();
+        final boolean auth = properties.isAuth();
+        final double amount = properties.getAmount();
+
+        log.info("==================");
+        log.info(email); // yun@test.com
+        log.info(nickname); // yun
+        log.info(String.valueOf(age)); // 27
+        log.info(String.valueOf(auth)); // true
+        log.info(String.valueOf(amount)); // 100.0
+        log.info("==================");
+    }
+}
+```
+아주 간단하고 명확한 해결 방법은 ConfigurationProperties를 이용해서 POJO 객체를 두는 것입니다. 장점들은 다음과 같습니다.
+
+#### Validation
+```java
+user:
+  email: "yun@" // 이메일 형식 올바르지 않음 -> @Email
+  nickname: "" // 필수 값 -> @NotEmpty
+
+```
+JSR-303 기반으로 Validate 검사를 할 수 있습니다. 위 코드 처럼 @Validated, @Email 어노테이션을 이용하면 쉽게 유효성 검사를 할 수 있습니다.
+
+```java
+Binding to target com.cheese.springjpa.properties.SampleProperties$$EnhancerBySpringCGLIB$$68016904@3cc27db9 failed:
+
+    Property: user.email
+    Value: yun@
+    Reason: 이메일 주소가 유효하지 않습니다.
+
+Binding to target com.cheese.springjpa.properties.SampleProperties$$EnhancerBySpringCGLIB$$d2899f85@3ca58cc8 failed:
+
+    Property: user.nickname
+    Value: 
+    Reason: 반드시 값이 존재하고 길이 혹은 크기가 0보다 커야 합니다.
+```
+**위와 같이 컴파일 과정 중에 잡아주고 에러 메시지도 상당히 구체적입니다.**
+
+#### 빈으로 등록 해서 재사용성이 높음
+```java
+public class SampleProperties {
+    @Email
+    private String email;
+    @NotEmpty
+    private String nickname;
+    private int age;
+    private boolean auth;
+    private double amount;
+
+    // getter, setter 
+    // properties 사용할 떄는 SampleProperties 객체를 사용함, 데이터의 응집력, 캡슐화가 높아짐
+}
+```
+
+#### 유연한 바인딩과 yml 또는 properties 파일에 작성시 자동으로 SampleProperties 연관된 속성들을 찾아준다. 
+
+#### pom.xml dependency
+```java
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-configuration-processor</artifactId>
+    <optional>true</optional>
+</dependency>
+```
+
+# step-11: Properties environment 설정하기
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-11.md
+
+#### profiles 를 통한 환경별 설정 팁
+
+| environment | 설명      | 파일명                   |
+| ----------- | ------- | --------------------- |
+| local       | 로컬 개발환경 | application-local.yml |
+| dev         | 개발환경    | application-dev.yml   |
+| prod        | 운영      | application-prod.yml  |
+
+
+
+## application.yml
+```yml
+server:
+  port: 8080
+```
+* 모든 환경에서 공통으로 사용할 정보들을 작성합니다.
+* 모든 환경에서 사용할 것을 공통으로 사용하기 때문에 코드의 중복과 변경에 이점이 있습니다.
+* 본 예제에서는 port만 공통으로 설정했습니다.
+
+## application-{env}.yml
+
+```yml
+user:
+  email: "yun@test"
+  nickname: "nickname"
+  age: 28
+  auth: false
+  amount: 101
+
+spring:
+  jpa:
+    database: h2
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+  datasource:
+    data: classpath:init.sql # 시작할때 실행시킬 script
+
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+logging:
+  level:
+    ROOT: info
+```
+* 각 개발환경에 맞는 properties 설정을 정의합니다.
+* 대표적으로 데이터베이스 정보, 외부 설정 정보 등이 있습니다.
+* `application.yml` 에서 정의한 `server.port` 8080 값이 자동으로 설정됩니다.
+
+## env 설정 방법
+
+### application.yml에서 설정하는 방법
+```yml
+spring:
+  profiles:
+    active: local
+
+server:
+  port: 8080
+```
+#### 실행
+* `profiles.active` 속성에 원하는 정보 env를 작성합니다.(intellij)
+* -Dspring.profiles.active={env}
+         
+### 우선순위
+외부 환경 설정에 대한 우선순위는 [Spring-Boot Document](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config)에 표시되어 있습니다. 실제 배포시에는 우선순위를 반드시 고려해야합니다.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
  
