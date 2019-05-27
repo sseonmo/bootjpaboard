@@ -43,7 +43,29 @@ public class InitRunner implements ApplicationRunner {
 		repository.save(user);
 
 		Question question = new Question(user, "testTitle", "testContent");
+		Question question1 = new Question(user, "testTitle1", "testContent1");
+		Question question2 = new Question(user, "testTitle2", "testContent2");
+		Question question3 = new Question(user, "testTitle3", "testContent3");
+		Question question4 = new Question(user, "testTitle4", "testContent4");
+		Question question5 = new Question(user, "testTitle5", "testContent5");
+		Question question6 = new Question(user, "testTitle6", "testContent6");
+		Question question7 = new Question(user, "testTitle7", "testContent7");
+		Question question8 = new Question(user, "testTitle8", "testContent8");
+		Question question9 = new Question(user, "testTitle9", "testContent9");
+		Question question10 = new Question(user, "testTitle10", "testContent10");
+		Question question11 = new Question(user, "testTitle11", "testContent11");
 		questionRepository.save(question);
+		questionRepository.save(question1);
+		questionRepository.save(question2);
+		questionRepository.save(question3);
+		questionRepository.save(question4);
+		questionRepository.save(question5);
+		questionRepository.save(question6);
+		questionRepository.save(question7);
+		questionRepository.save(question8);
+		questionRepository.save(question9);
+		questionRepository.save(question10);
+		questionRepository.save(question11);
 
 	}
 }

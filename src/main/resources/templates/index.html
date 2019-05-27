@@ -10,26 +10,6 @@
 	<div class="col-md-12 col-sm-12 col-lg-10 col-lg-offset-1">
 		<div class="panel panel-default qna-list">
 			<ul class="list">
-				{{#questions}}
-				<li>
-					<div class="wrap">
-						<div class="main">
-							<strong class="subject">
-								<a href="/questions/{{id}}">{{title}}</a>
-							</strong>
-							<div class="auth-info">
-								<i class="icon-add-comment"></i>
-								<span class="time">{{formattedCreateDate}}</span>
-								<a href="/user/{{id}}/form" class="author">{{writer.userId}}</a>
-							</div>
-							<div class="reply" title="댓글">
-								<i class="icon-reply"></i>
-								<span class="point">{{answers.size}}</span>
-							</div>
-						</div>
-					</div>
-				</li>
-				{{/questions}}
 			</ul>
 			<div class="row">
 				<div class="col-md-3"></div>
@@ -54,5 +34,71 @@
 
 <!-- script references -->
 {{> /include/footer}}
+
+<script type="text/template" id="questionList">
+	<li>
+		<div class="wrap">
+			<div class="main">
+				<strong class="subject">
+					<a href="/questions/{0}">{1}</a>
+				</strong>
+				<div class="auth-info">
+					<i class="icon-add-comment"></i>
+					<span class="time">{2}</span>
+					<a href="/user/{3}/form" class="author">{4}</a>
+				</div>
+				<div class="reply" title="댓글">
+					<i class="icon-reply"></i>
+					<span class="point">{5}</span>
+				</div>
+			</div>
+		</div>
+	</li>
+</script>
+<script type="text/javascript">
+
+	$(document).ready(function () {
+		searchQuestion();
+	});
+
+
+	// 답변등록
+	function searchQuestion() {
+
+
+		// var queryString = $(".ans-write").serialize();
+		// var params = $(".ans-write").serializeObject();
+		var url = "/api/question";
+
+		$.ajax({
+			type: 'get',
+			url: url,
+			// data: queryString,
+			contentType : 'application/json',
+			// data: JSON.stringify(params),
+			dataType: 'json',
+			error: function (request, status, error) {
+				// console.error(request, status, error);
+				console.log(request.responseJSON);
+
+				alert(request.responseJSON.message);
+
+			},
+			success: function (data) {
+				var templateRs = "";
+
+				$.each(data, function (index, item) {
+					templateRs += $("#questionList").html().format(item.id, item.title, item.createDate, item.writer.id, item.writer.userId, item.answers.length);
+				});
+
+				$(".list").append(templateRs);
+
+			}
+
+		});
+
+	}
+
+</script>
 </body>
 </html>

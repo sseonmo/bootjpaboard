@@ -29,7 +29,7 @@ public class WelcomeController {
 
 	@GetMapping("")
 	public String index(Model model) {
-		model.addAttribute("questions", repository.findAll());
+//		model.addAttribute("questions", repository.findAll());
 		return "/index";
 	}
 
