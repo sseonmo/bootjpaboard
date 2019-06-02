@@ -931,6 +931,170 @@ server:
          
 ### 우선순위
 외부 환경 설정에 대한 우선순위는 [Spring-Boot Document](https://docs.spring.io/spring-boot/docs/current/reference/html/boot-features-external-config.html#boot-features-external-config)에 표시되어 있습니다. 실제 배포시에는 우선순위를 반드시 고려해야합니다.
+
+# step-12: 페이징 API 만들기
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/step-13/doc/step-12.md
+
+## Simple code
+```java
+
+@RestController
+@RequestMapping("/api/question")
+@AllArgsConstructor
+public class ApiQuestionController {
+
+	private QuestionRepository repository;
+
+	@GetMapping("")
+	public Page<Question> findAll(Pageable  pageable) {
+		return repository.findAll(pageable);
+	}
+}
+
+```
+Controller 에서 Pageable 인터페이스를 받고 repository 메서드 findAll(pageable)로 넘기기만 하면됩니다.
+
+
+#### 응답
+```java
+{
+  "content": [
+    {
+      "@id": 1,
+      "createDate": "2019-06-03 06:56:40",
+      "modifyDate": "2019-06-03 06:56:40",
+      "createAt": "2019-06-02T21:56:40.475+0000",
+      "updateAt": "2019-06-02T21:56:40.475+0000",
+      "id": 12,
+      "writer": {
+        "createDate": "2019-06-03 06:56:40",
+        "modifyDate": "2019-06-03 06:56:40",
+        "createAt": "2019-06-02T21:56:40.353+0000",
+        "updateAt": "2019-06-02T21:56:40.353+0000",
+        "id": 1,
+        "userId": "seonmo",
+        "password": {
+          "value": "pass",
+          "expirationDate": "2019-06-17T06:56:40.248",
+          "failedCount": 0,
+          "ttl": 1209600,
+          "expiration": false
+        },
+        "name": "선모",
+        "email": {
+          "value": "seonmo@gmila.com"
+        },
+        "formattedCreateDate": "2019-06-03 06:56:40",
+        "formattedModifyDate": "2019-06-03 06:56:40"
+      },
+      "answers": [],
+      "title": "testTitle11",
+      "histories": [
+        {
+          "createDate": "2019-06-03 06:56:40",
+          "modifyDate": "2019-06-03 06:56:40",
+          "createAt": "2019-06-02T21:56:40.477+0000",
+          "updateAt": "2019-06-02T21:56:40.477+0000",
+          "id": 12,
+          "status": "CREATE",
+          "formattedCreateDate": "2019-06-03 06:56:40",
+          "formattedModifyDate": "2019-06-03 06:56:40"
+        }
+      ],
+      "delYn": "N",
+      "contents": "testContent11",
+      "formattedCreateDate": "2019-06-03 06:56:40",
+      "formattedModifyDate": "2019-06-03 06:56:40"
+    },
+    ...
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageSize": 5,
+    "pageNumber": 0,    // 현재 페이지 0부터 시작
+    "unpaged": false,
+    "paged": true
+  },
+  "totalPages": 3,      // 총 페이지
+  "totalElements": 12,  // 총 게시물 개수 
+  "last": false,        // 마지막 페이지 여부
+  "number": 0,          // 현재 페이지 0부터 시작
+  "size": 5,            // 페이지 당 보여주는 게시물 개수
+  "sort": {     
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "numberOfElements": 5,    
+  "first": true,            // 첫페이지 여부
+  "empty": false            // 리스트가 비어있는지 여부
+}
+```
+
+## 개선
+위의 Pageable의 개선할 점이 있습니다. 우선 size에 대한 limit이 없습니다. 위의 API에서 size값을 200000을 넘기면 실제 데이터베이스 쿼리문이 200000의 조회할 수 있습니다. 그 밖에 page가 0 부터 시작하는 것들도 개선하는 것이 필요해 보입니다.
+
+#### PageRequest
+```java
+public class PageRequest {
+
+	private int page;
+
+	private int size;
+
+	private Sort.Direction direction;
+
+	public void setPage(int page) {
+		this.page = page <= 0 ? 1 : page;
+	}
+
+	public void setSize(int size) {
+		int DEFAULT_SIZE = 5;
+		int MAX_SIZE = 20;
+
+		this.size = size > MAX_SIZE ? MAX_SIZE : size;
+	}
+
+	public void setDirection(Sort.Direction direction) {
+		this.direction = direction;
+	}
+
+	public org.springframework.data.domain.PageRequest of() {
+		return org.springframework.data.domain.PageRequest.of(page -1, size, direction, "createDate");
+	}
+}
+```
+
+##### Pageable을 대체하는 PageRequest 클래스를 작성합니다. 
+적당히 type safe 하게.. 
+
+* setPage(int page) 메서드를 통해서 0보다 작은 페이지를 요청했을 경우 1 페이지로 설정합니다.
+* setSize(int size) 메서드를 통해서 요청 사이즈 50 보다 크면 기본 사이즈인 10으로 바인딩 합니다.
+* of() 메서트를 통해서 PageRequest 객체를 응답해줍니다. 페이지는 0부터 시작하니 page -1 합니다. 본 예제에서는 sort는 createdAt 기준으로 진행합니다.
+
+#### Controller
+```java
+@RestController
+@RequestMapping("/api/question")
+@AllArgsConstructor
+public class ApiQuestionController {
+
+	private QuestionRepository repository;
+
+	@GetMapping("")
+	public Page<Question> findAll(final PageRequest pageable) {
+		return repository.findAll(pageable.of());
+	}
+}
+```
+
+
+
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
  
@@ -960,7 +1124,6 @@ public class Child {
   @ManyToOne
   private Parent parent;
 }
-
 
 ```
 #### CascadeType.PERSIST<저장> - 부모를 영속화할 때 연관된 자식들도 함께 영속화 한다

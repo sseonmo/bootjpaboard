@@ -15,13 +15,7 @@
 				<div class="col-md-3"></div>
 				<div class="col-md-6 text-center">
 					<ul class="pagination center-block" style="display:inline-block;">
-						<li><a href="#">«</a></li>
-						<li><a href="#">1</a></li>
-						<li><a href="#">2</a></li>
-						<li><a href="#">3</a></li>
-						<li><a href="#">4</a></li>
-						<li><a href="#">5</a></li>
-						<li><a href="#">»</a></li>
+
 					</ul>
 				</div>
 				<div class="col-md-3 qna-write">
@@ -55,27 +49,63 @@
 		</div>
 	</li>
 </script>
+
+<script type="text/template" id="pageNaviTemplate">
+	<li><a href='javascript:void(0);' >{1}</a></li>
+</script>
+<script type="text/template" id="pageNaviCurTemplate">
+	<li><a href='javascript:void(0);'><b>{1}</b></a></li>
+</script>
+
 <script type="text/javascript">
+
+	//페이징 관련
+	var page = {
+
+		naviCnt : 5,  //페이지네이션 5
+		curPage : 1,    //현재페이지
+		strPage : 0,
+		endPage : 0,
+		pageSize : 5,   // 한화면에 보여줄 게시글 갯수
+		direction : 'DESC'  //sort
+	};
 
 	$(document).ready(function () {
 		searchQuestion();
+
+		$(".pagination").on("click", "li", pageNoFnc);
 	});
+
+
+	var pageNoFnc = function () {
+		var pageNo = $(this).text();
+
+		if (pageNo === "<<")
+			page.curPage--;
+		else if (pageNo ===  ">>")
+			page.curPage++;
+		else
+			page.curPage =  pageNo;
+
+		searchQuestion();
+
+	};
 
 
 	// 답변등록
 	function searchQuestion() {
 
-
 		// var queryString = $(".ans-write").serialize();
 		// var params = $(".ans-write").serializeObject();
 		var url = "/api/question";
+
 
 		$.ajax({
 			type: 'get',
 			url: url,
 			// data: queryString,
 			contentType : 'application/json',
-			// data: JSON.stringify(params),
+			data: pageParam(),
 			dataType: 'json',
 			error: function (request, status, error) {
 				// console.error(request, status, error);
@@ -85,17 +115,63 @@
 
 			},
 			success: function (data) {
-				var templateRs = "";
 
-				$.each(data, function (index, item) {
-					templateRs += $("#questionList").html().format(item.id, item.title, item.createDate, item.writer.id, item.writer.userId, item.answers.length);
-				});
+				questionTemplate(data.content);
 
-				$(".list").append(templateRs);
+				page.strPage = parseInt((page.curPage - 1) / page.naviCnt) * page.naviCnt + 1;
+				page.endPage = page.strPage + page.naviCnt - 1;
+
+				if(page.endPage > data.totalPages)
+					page.endPage = data.totalPages;
+
+				var pagination = "";
+
+				if(!data.first){
+					pagination = $("#pageNaviTemplate").html().format(0, "<<");
+				}
+
+				for(var i = page.strPage; i <= page.endPage; i++){
+
+					if(i == page.curPage)
+						pagination  += $("#pageNaviCurTemplate").html().format(i, i);
+					else
+						pagination  += $("#pageNaviTemplate").html().format(i, i);
+				}
+
+				if(!data.last){
+					pagination += $("#pageNaviTemplate").html().format(9999, ">>");
+				}
+
+
+				$(".pagination").html("").append(pagination);
 
 			}
 
 		});
+	}
+
+	function questionTemplate(data) {
+
+		var templateRs = "";
+
+		$.each(data, function (index, item) {
+			templateRs += $("#questionList").html().format(item.id, item.title, item.createDate, item.writer.id, item.writer.userId, item.answers.length);
+		});
+
+		$(".list").html("").append(templateRs);
+	}
+
+	function pageParam() {
+		var pageParam = {
+			size : page.pageSize,
+			page : page.curPage,
+			direction : page.direction
+		};
+
+		return pageParam;
+	}
+
+	function pagenation() {
 
 	}
 
