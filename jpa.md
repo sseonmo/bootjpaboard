@@ -1094,6 +1094,116 @@ public class ApiQuestionController {
 ```
 
 
+# step-13: Query Dsl이용한 페이징 API 만들기
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-13.md
+
+## 기초작업
+
+```java
+<dependency>
+    <groupId>com.querydsl</groupId>
+    <artifactId>querydsl-apt</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.querydsl</groupId>
+    <artifactId>querydsl-jpa</artifactId>
+</dependency>
+
+<plugin>
+    <groupId>com.mysema.maven</groupId>
+    <artifactId>apt-maven-plugin</artifactId>
+    <version>1.1.3</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>process</goal>
+            </goals>
+            <configuration>
+                <outputDirectory>target/generated-sources/java</outputDirectory>
+                <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+
+```
+com.querydsl.apt.jpa.JPAAnnotationProcessor로 Entity들을 compile하여 outputDirectory 위치시킨다.  
+
+
+## Controller
+```java
+@RestController
+@RequestMapping("/api/question")
+@AllArgsConstructor
+public class ApiQuestionController {
+
+	private QuestionService service;
+
+	@GetMapping("")
+	public Page<Question> findAll(
+			@RequestParam(name = "type") final QuestionSearchType type,
+			@RequestParam(name = "value", required = false) final String value,
+			final PageRequest pageRequest) {
+
+		return service.findAll(type, value, pageRequest.of());
+	}
+	
+	public enum QuestionSearchType {
+    	TITLE, USERNM, ALL
+    }
+}
+
+```
+
+## Service
+```java
+@Service
+@Transactional
+public class QuestionService extends QuerydslRepositorySupport  {
+
+	@Resource
+	private QuestionRepository repository;
+
+	public QuestionService() {
+		super(Question.class);
+	}
+
+	public Page<Question> findAll(final QuestionSearchType type, final String value, final Pageable pageable) {
+
+		final QQuestion question = QQuestion.question;
+		final JPQLQuery<Question> query;
+
+		switch (type) {
+
+			case TITLE:
+				query = from(question)
+						.where(question.title.likeIgnoreCase(value+"%"));
+				break;
+
+			case USERNM:
+				query = from(question)
+						.where(question.writer.userId.likeIgnoreCase(value+"%"));
+				break;
+
+			case ALL:
+				query = from(question).fetchAll();
+				break;
+
+			default:
+				throw  new IllegalArgumentException();
+
+		}
+
+		final List<Question> questions = getQuerydsl().applyPagination(pageable, query).fetch();
+		return new PageImpl<>(questions, pageable, query.fetchCount());
+	}
+}
+
+```
+QuerydslRepositorySupport를 이용하면 동적 쿼리를 쉽게 만들수 있습니다. 객체 기반으로 쿼리를 만드는 것이라서 타입 세이프의 강점을 그대로 가질 수 있습니다. QuerydslRepositorySupport 추상 클래스를 상속 받고 기본 생성자를 통해서 조회 대상 엔티티 클래스를 지정합니다.
+Querydsl를 가장 큰 장점은 *타입세이프* 인 것 같다. 
+
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
