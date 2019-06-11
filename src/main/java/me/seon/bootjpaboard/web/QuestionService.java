@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.support.QuerydslRepositorySupport
 import javax.annotation.Resource;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -54,6 +55,7 @@ public class QuestionService extends QuerydslRepositorySupport  {
 
 		}
 
+//		final List<Question> questions = Objects.requireNonNull(getQuerydsl()).applyPagination(pageable, query).fetch();
 		final List<Question> questions = getQuerydsl().applyPagination(pageable, query).fetch();
 		return new PageImpl<>(questions, pageable, query.fetchCount());
 	}

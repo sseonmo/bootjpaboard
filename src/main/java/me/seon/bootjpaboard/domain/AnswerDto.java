@@ -1,9 +1,6 @@
 package me.seon.bootjpaboard.domain;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -17,6 +14,10 @@ public class AnswerDto {
 		@NotEmpty
 		private String contents;
 
+		@Builder
+		public CreateReq(@NotEmpty String contents) {
+			this.contents = contents;
+		}
 	}
 
 	@Getter
