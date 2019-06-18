@@ -1204,6 +1204,9 @@ public class QuestionService extends QuerydslRepositorySupport  {
 QuerydslRepositorySupport를 이용하면 동적 쿼리를 쉽게 만들수 있습니다. 객체 기반으로 쿼리를 만드는 것이라서 타입 세이프의 강점을 그대로 가질 수 있습니다. QuerydslRepositorySupport 추상 클래스를 상속 받고 기본 생성자를 통해서 조회 대상 엔티티 클래스를 지정합니다.
 Querydsl를 가장 큰 장점은 *타입세이프* 인 것 같다. 
 
+# step-15, 16:  Querydsl를 이용해서 Repository 확장하기 1, 2
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-15.md
+참조 - https://github.com/cheese10yun/spring-jpa-best-practices/blob/master/doc/step-16.md
 
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 # 영속성 전이 CASCADE
